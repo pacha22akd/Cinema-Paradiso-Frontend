@@ -1,0 +1,5 @@
+{# request.values tiene todo lo que el usuario eligió en los pasos anteriores.
+   Lo reenviamos como campos ocultos para no perderlo. #}
+{% for clave, valor in request.values.items(multi=True) %}
+  <input type="hidden" name="{{ clave }}" value="{{ valor }}">
+{% endfor %}

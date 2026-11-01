@@ -1,0 +1,9 @@
+<div class="panel">
+  <h3>{{ titulo }}</h3>
+  {% for etiqueta, valor in datos %}
+    <div class="item-barra">
+      <div class="linea chico"><span>{{ etiqueta }}</span><span>{{ valor }}{{ sufijo|default('') }}</span></div>
+      <div class="barra"><div style="width: {{ [valor, 100]|min }}%;"></div></div>
+    </div>
+  {% endfor %}
+</div>

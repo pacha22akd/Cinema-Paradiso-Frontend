@@ -1,0 +1,36 @@
+<header class="barra-nav">
+  <div class="contenedor barra-nav-interior">
+    <a class="logo" href="{{ url_for('publico.cartelera') }}">{% include 'components/icono_logo.html' %} Cine Paradiso</a>
+
+    {# Botón del menú de celular: static/js/app.js lo abre y lo cierra #}
+    <button type="button" class="hamburguesa" id="boton-menu" aria-label="Abrir menú" aria-expanded="false">☰</button>
+
+    <nav class="menu" id="menu-principal">
+  <a href="{{ url_for('publico.perfil') }}">Mis entradas</a>
+  
+  <div class="menu-usuario">
+  {% if session.usuario %}
+    
+    {% if session.usuario.rol == 'admin' %}
+      <a class="boton boton-borde boton-chico" href="{{ url_for('admin.perfil') }}">Backoffice</a>
+    {% endif %}
+    
+    <form method="POST" action="{{ url_for('publico.logout') }}">
+      <button class="boton boton-rojo boton-chico" type="submit">Salir</button>
+    </form>
+
+    <a href="{{ url_for('publico.perfil') }}" class="perfil-usuario" aria-label="Mi perfil">
+      {% include 'components/icono_usuario.html' %}
+      <span class="chico tenue">{{ session.usuario.nombre }}</span>
+    </a>
+
+  {% else %}
+    <a class="boton boton-rojo boton-chico" href="{{ url_for('publico.login') }}">Ingresar</a>
+    <a href="{{ url_for('publico.login') }}" class="perfil-usuario" aria-label="Ingresar">
+      {% include 'components/icono_usuario.html' %}
+    </a>
+  {% endif %}
+</div>
+</nav>
+  </div>
+</header>

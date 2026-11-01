@@ -1,0 +1,14 @@
+<footer class="pie">
+  <div class="contenedor pie-interior">
+    <div>
+      <h3>Cine_Paradiso en todas nuestras redes</h3>
+      <div class="redes"><span><a href="#">IG</a></span><span><a href="#">X</a></span><span><a href="#">YT</a></span></div>
+    </div>
+    <div>
+      <h3>Nuestros cines:</h3>
+      <ul>
+        {% for n in (1, 2, 3) %}<li>Cine Paradiso {{ n }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</footer>
