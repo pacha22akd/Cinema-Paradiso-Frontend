@@ -1,0 +1,26 @@
+{% extends 'compra/compra_base.html' %}
+{% set paso = 3 %}
+{% block title %}Comida y servicios{% endblock %}
+{% block paso %}
+<h2>Sumá comida, bebida y servicios</h2>
+<form method="GET" action="{{ url_for('compra.confirmacion', funcion_id=funcion.id) }}" data-total="{{ resumen.total }}">
+  {% include 'components/estado_compra.html' %}
+  <div class="grilla-2">
+    {% for s in servicios %}
+      <div class="panel servicio-card">
+        <div>
+          <span class="insignia">{{ s.categoria }}</span>
+          <div><strong>{{ s.nombre }}</strong></div>
+          <div class="chico tenue">${{ s.precio }}</div>
+        </div>
+        <input class="cantidad" type="number" name="srv_{{ s.id }}" min="0" max="10" data-precio="{{ s.precio }}" value="0" aria-label="Cantidad {{ s.nombre }}">
+      </div>
+    {% endfor %}
+  </div>
+  <p class="total-vivo">Total: <strong data-total-salida>$0</strong></p>
+  <div class="acciones">
+    <a class="boton boton-claro" href="{{ url_for('compra.butacas', funcion_id=funcion.id) }}">← Volver</a>
+    <button class="boton boton-rojo" type="submit">Continuar →</button>
+  </div>
+</form>
+{% endblock %}

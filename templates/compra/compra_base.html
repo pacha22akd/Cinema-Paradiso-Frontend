@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+{% set pasos = ['Horario', 'Entradas', 'Butacas', 'Comida', 'Confirmación', 'Pago'] %}
+<div class="stepper">
+  {# `paso` lo define cada template hijo: 0 = Horario, 1 = Entradas, etc. #}
+  {% for nombre in pasos %}
+    {% if loop.index0 == paso %}
+      <div class="paso activo">{{ loop.index }}. {{ nombre }}</div>
+    {% elif loop.index0 < paso %}
+      <div class="paso hecho">{{ loop.index }}. {{ nombre }}</div>
+    {% else %}
+      <div class="paso">{{ loop.index }}. {{ nombre }}</div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% include 'components/mensajes.html' %}
+<div class="layout-compra">
+  <div>{% block paso %}{% endblock %}</div>
+  <div>{% include 'components/resumen_compra.html' %}</div>
+</div>
+{% endblock %}

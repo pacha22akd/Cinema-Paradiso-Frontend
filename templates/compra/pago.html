@@ -1,0 +1,17 @@
+{% extends 'compra/compra_base.html' %}
+{% set paso = 5 %}
+{% block title %}Confirmar compra{% endblock %}
+{% block paso %}
+<h2>Confirmá tu compra</h2>
+<form method="POST" action="{{ url_for('compra.pago', funcion_id=funcion.id) }}">
+  {% include 'components/estado_compra.html' %}
+  <div class="panel panel-grande">
+    <p>Total a pagar: <strong style="font-size:1.6rem">${{ resumen.total }}</strong></p>
+    <p class="chico tenue" style="margin:0">Te enviaremos la factura y el QR de ingreso a {{ session.usuario.email }}.</p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton-claro" href="{{ url_for('compra.confirmacion', funcion_id=funcion.id) }}">← Volver</a>
+    <button class="boton boton-rojo" type="submit">Confirmar compra</button>
+  </div>
+</form>
+{% endblock %}

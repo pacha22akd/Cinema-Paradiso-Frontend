@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Error 403{% endblock %}
+{% block content %}
+<div class="centrado">
+  <div class="error-codigo">403</div>
+  <h1>No tenés permisos para entrar acá.</h1>
+  <a class="boton boton-rojo" href="{{ url_for('publico.cartelera') }}">Volver a la cartelera</a>
+</div>
+{% endblock %}

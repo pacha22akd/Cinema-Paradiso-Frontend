@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Error 500{% endblock %}
+{% block content %}
+<div class="centrado">
+  <div class="error-codigo">500</div>
+  <h1>Algo salió mal de nuestro lado. Probá de nuevo en unos minutos.</h1>
+  <a class="boton boton-rojo" href="{{ url_for('publico.cartelera') }}">Volver a la cartelera</a>
+</div>
+{% endblock %}

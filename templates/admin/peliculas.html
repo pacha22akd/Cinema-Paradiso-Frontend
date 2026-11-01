@@ -1,0 +1,34 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %}Carga de películas{% endblock %}
+{% block admin_content %}
+<h1>Películas</h1>
+<div class="panel panel-grande" style="margin-bottom:1.5rem">
+  <h3>Cargar película</h3>
+  <form method="POST" enctype="multipart/form-data" class="form-grilla">
+    <div class="campo"><label for="titulo">Título</label><input type="text" id="titulo" name="titulo" required></div>
+    <div class="campo"><label for="imagen">Póster</label><input type="file" id="imagen" name="imagen" accept="image/*"></div>
+    <div class="campo ancho-total"><label for="sinopsis">Sinopsis</label><textarea id="sinopsis" name="sinopsis" rows="3" required></textarea></div>
+    <div class="campo"><label for="cine">Local</label>
+      <select id="cine" name="cine_id">{% for c in cines %}<option value="{{ c.id }}">{{ c.nombre }}</option>{% endfor %}</select></div>
+    <div class="campo"><label for="sala">Sala</label><input type="text" id="sala" name="sala" required></div>
+    <div class="campo"><label for="capacidad">Capacidad</label><input type="number" min="1" id="capacidad" name="capacidad" required></div>
+    <div class="campo"><label for="desde">Disponible desde</label><input type="datetime-local" id="desde" name="desde" required></div>
+    <div class="campo"><label for="hasta">Disponible hasta</label><input type="datetime-local" id="hasta" name="hasta" required></div>
+    <div class="ancho-total"><button class="boton boton-rojo" type="submit">Guardar película</button></div>
+  </form>
+</div>
+<div class="tabla-contenedor">
+  <table>
+    <thead><tr><th></th><th>Título</th><th>Género</th><th>Duración</th><th></th></tr></thead>
+    <tbody>
+    {% for p in peliculas %}
+      <tr><td><img src="{{ p.poster }}" alt="" width="36"></td><td>{{ p.titulo }}</td><td>{{ p.genero }}</td><td>{{ p.duracion }} min</td>
+        <td><div class="celda-acciones">
+          <a class="boton boton-claro boton-chico" href="#">Editar</a>
+          <a class="boton boton-rojo boton-chico" href="#">Dar de baja</a>
+        </div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

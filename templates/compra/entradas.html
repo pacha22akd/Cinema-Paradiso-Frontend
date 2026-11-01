@@ -1,0 +1,22 @@
+{% extends 'compra/compra_base.html' %}
+{% set paso = 1 %}
+{% block title %}Entradas{% endblock %}
+{% block paso %}
+<h2>¿Cuántas entradas?</h2>
+<form method="GET" action="{{ url_for('compra.butacas', funcion_id=funcion.id) }}" data-total="0">
+  <div class="panel">
+    {% for t in tipos %}
+      <div class="fila-linea">
+        <div><strong>{{ t.nombre }}</strong><div class="chico tenue">${{ t.precio }}</div></div>
+        <input class="cantidad" type="number" name="{{ t.clave }}" min="0" max="8" data-precio="{{ t.precio }}"
+               value="{% if t.clave == 'general' %}1{% else %}0{% endif %}" aria-label="Cantidad {{ t.nombre }}">
+      </div>
+    {% endfor %}
+  </div>
+  <p class="total-vivo">Total: <strong data-total-salida>$0</strong></p>
+  <div class="acciones">
+    <a class="boton boton-claro" href="{{ url_for('compra.horario', pelicula_id=pelicula.id) }}">← Volver</a>
+    <button class="boton boton-rojo" type="submit">Elegir butacas →</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}¡Compra exitosa!{% endblock %}
+{% block content %}
+<div class="centrado">
+  <div class="tilde-grande">✓</div>
+  <h1>¡Compra confirmada!</h1>
+  <p class="tenue">Te enviamos la factura y el QR de ingreso a {{ session.usuario.email }}.</p>
+  <a class="boton boton-rojo" href="{{ url_for('publico.perfil') }}">Ver mis entradas</a>
+</div>
+{% endblock %}
