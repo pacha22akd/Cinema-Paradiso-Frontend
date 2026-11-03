@@ -39,7 +39,7 @@ def login():
         session["usuario"] = usuario  # guardamos el usuario en la sesión
 
         if usuario["rol"] == "admin":
-            return redirect(url_for("admin.perfil"))
+            return redirect(url_for("admin.dashboard"))
         return redirect(url_for("publico.cartelera"))
 
     # GET = el usuario recién entró a la página, mostramos el formulario
@@ -64,3 +64,4 @@ def perfil():
         if compra["estado"] == "Utilizada":
             vistas = vistas + 1
     return render_template("perfil.html", usuario=session["usuario"], historial=historial, vistas=vistas)
+
