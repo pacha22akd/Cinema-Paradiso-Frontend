@@ -1,4 +1,8 @@
 # Backoffice del administrador. Todas las rutas de acá empiezan con /admin.
+# @admin_bp.route("/perfil")
+#def perfil():
+    #return render_template("admin/perfil.html", admin=session["usuario"]) modificacion de perfil
+
 from flask import Blueprint, redirect, render_template, request, session, url_for
 
 from services import mock_data
@@ -6,19 +10,12 @@ from services.auth import revisar_admin
 
 admin_bp = Blueprint("admin", __name__)
 
-
 @admin_bp.before_request
 def proteger():
     # Se ejecuta antes de CUALQUIER ruta de admin: hay que ser administrador
     return revisar_admin()
 
-
-@admin_bp.route("/")
-def perfil():
-    return render_template("admin/perfil.html", admin=session["usuario"])
-
-
-@admin_bp.route("/dashboard")
+@admin_bp.route("/backoffice")
 def dashboard():
     return render_template("admin/dashboard.html", est=mock_data.get_estadisticas())
 

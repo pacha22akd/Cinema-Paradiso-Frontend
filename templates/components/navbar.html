@@ -12,7 +12,7 @@
   {% if session.usuario %}
     
     {% if session.usuario.rol == 'admin' %}
-      <a class="boton boton-borde boton-chico" href="{{ url_for('admin.perfil') }}">Backoffice</a>
+      <a class="boton boton-borde boton-chico" href="{{ url_for('admin.dashboard') }}">Backoffice</a>
     {% endif %}
     
     <form method="POST" action="{{ url_for('publico.logout') }}">
