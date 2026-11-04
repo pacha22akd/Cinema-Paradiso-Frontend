@@ -6,7 +6,6 @@ from services.auth import revisar_login
 
 publico_bp = Blueprint("publico", __name__)
 
-
 @publico_bp.route("/")
 def cartelera():
     peliculas = mock_data.get_peliculas()
@@ -25,7 +24,6 @@ def pelicula(pelicula_id):
 
 @publico_bp.route("/login", methods=["GET", "POST"])
 def login():
-    # POST = el usuario apretó el botón "Iniciar sesión"
     if request.method == "POST":
         email = request.form.get("email", "")
         password = request.form.get("password", "")

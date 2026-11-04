@@ -1,14 +1,12 @@
 # Datos de prueba
 from datetime import datetime, timedelta
 
-
 def get_cines():
     return [
         {"id": 1, "nombre": "Cine Paradiso 1"},
         {"id": 2, "nombre": "Cine Paradiso 2"},
         {"id": 3, "nombre": "Cine Paradiso 3"},
     ]
-
 
 def get_peliculas():
     peliculas = [

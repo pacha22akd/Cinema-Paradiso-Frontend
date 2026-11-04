@@ -9,7 +9,6 @@ from services.auth import revisar_login
 
 compra_bp = Blueprint("compra", __name__)
 
-
 @compra_bp.before_request
 def proteger():
     # Se ejecuta antes de CUALQUIER ruta de compra: hay que estar logueado
@@ -134,8 +133,6 @@ def validar_tarjeta(form):
 @compra_bp.route("/<int:funcion_id>/pago", methods=["GET", "POST"])
 def pago(funcion_id):
     funcion, pelicula, resumen = cargar_compra(funcion_id)
-
-    # Valores que se vuelven a mostrar en el formulario (el CVV nunca se devuelve)
     datos = {"titular": "", "numero": "", "vencimiento": ""}
 
     if request.method == "POST":

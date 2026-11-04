@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  // 1) Menú de celular: el botón ☰ abre y cierra el menú
+  //Menú de celular: el botón ☰ abre y cierra el menú
   function iniciarMenu() {
     const boton = document.getElementById("boton-menu");
     const menu = document.getElementById("menu-principal");
@@ -14,7 +14,7 @@
     });
   }
 
-  // 2) El selector de cines (de la barra superior) se cierra al hacer click afuera
+  //El selector de cines (de la barra superior) se cierra al hacer click afuera
   function iniciarDesplegables() {
     document.addEventListener("click", function (evento) {
       const abiertos = document.querySelectorAll(".desplegable[open]");
@@ -26,7 +26,7 @@
     });
   }
 
-  // 3) Carruseles: las flechas ‹ › mueven el carrusel
+  //Carruseles: las flechas ‹ › mueven el carrusel
   function iniciarCarruseles() {
     const cajas = document.querySelectorAll("[data-carrusel]");
     cajas.forEach(function (caja) {
@@ -43,7 +43,7 @@
     });
   }
 
-  // 4) Login: botón para mostrar u ocultar la contraseña
+  //Login: botón para mostrar u ocultar la contraseña
   function iniciarMostrarPassword() {
     const botones = document.querySelectorAll("[data-mostrar-password]");
     botones.forEach(function (boton) {
@@ -56,7 +56,7 @@
     });
   }
 
-  // 5) Butacas: no se pueden elegir más butacas que entradas, y se cuenta cuántas van
+  //Butacas: no se pueden elegir más butacas que entradas, y se cuenta cuántas van
   function iniciarButacas() {
     const formulario = document.querySelector("[data-max-butacas]");
     if (!formulario) {
@@ -93,7 +93,7 @@
     actualizar();
   }
 
-  // 6) Total en vivo: suma cantidad x precio mientras el usuario cambia los números
+  //Total en vivo: suma cantidad x precio mientras el usuario cambia los números
   function iniciarTotalEnVivo() {
     const formularios = document.querySelectorAll("[data-total]");
     formularios.forEach(function (formulario) {
@@ -117,7 +117,7 @@
     });
   }
 
-  // 7) Formularios con pregunta de confirmación (por ejemplo, cancelar una entrada)
+  //Formularios con pregunta de confirmación (por ejemplo, cancelar una entrada)
   function iniciarConfirmaciones() {
     const formularios = document.querySelectorAll("form[data-confirmar]");
     formularios.forEach(function (formulario) {
@@ -129,7 +129,7 @@
     });
   }
 
-  // Cuando la página termina de cargar, activamos todo
+  //Cuando la página termina de cargar, activamos todo
   document.addEventListener("DOMContentLoaded", function () {
     iniciarMenu();
     iniciarDesplegables();
