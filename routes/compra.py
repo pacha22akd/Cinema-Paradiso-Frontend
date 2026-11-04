@@ -1,7 +1,8 @@
 # Flujo de compra: horario -> entradas -> butacas -> comida -> confirmación -> pago.
 # Como todavía no hay base de datos, lo que elige el usuario viaja en la URL
 # (por ejemplo ?general=2&butacas=B4) y se va pasando de un paso al siguiente.
-from flask import Blueprint, abort, redirect, render_template, request, url_for
+from datetime import datetime
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 
 from services import mock_data
 from services.auth import revisar_login
@@ -93,15 +94,64 @@ def confirmacion(funcion_id):
     funcion, pelicula, resumen = cargar_compra(funcion_id)
     return render_template("compra/confirmacion.html", funcion=funcion, pelicula=pelicula, resumen=resumen)
 
+def validar_tarjeta(form):
+    errores = []
+
+    titular = form.get("titular", "").strip()
+    numero = form.get("numero", "").replace(" ", "")
+    vencimiento = form.get("vencimiento", "").strip()
+    cvv = form.get("cvv", "").strip()
+
+    if not titular or not all(c.isalpha() or c in " '-" for c in titular):
+        errores.append("Ingresá el nombre del titular (solo letras).")
+
+    if not (13 <= len(numero) <= 19 and numero.isascii() and numero.isdigit()):
+        errores.append("El número de tarjeta debe tener solo números (entre 13 y 19 dígitos).")
+
+    partes = vencimiento.split("/")
+    formato_valido = (
+        len(vencimiento) == 5
+        and len(partes) == 2
+        and len(partes[0]) == 2
+        and len(partes[1]) == 2
+        and all(parte.isascii() and parte.isdigit() for parte in partes)
+    )
+
+    if not formato_valido or not (1 <= int(partes[0]) <= 12):
+        errores.append("El vencimiento debe tener el formato MM/AA.")
+    else:
+        mes = int(partes[0])
+        anio = 2000 + int(partes[1])
+        hoy = datetime.now()
+        if (anio, mes) < (hoy.year, hoy.month):
+            errores.append("La tarjeta está vencida.")
+
+    if not (len(cvv) in (3, 4) and cvv.isascii() and cvv.isdigit()):
+        errores.append("El CVV debe tener solo números (3 o 4 dígitos).")
+
+    return errores
 
 @compra_bp.route("/<int:funcion_id>/pago", methods=["GET", "POST"])
 def pago(funcion_id):
-    # POST = el usuario apretó "Confirmar compra"
-    if request.method == "POST":
-        return redirect(url_for("compra.exito"))  # Hito 3: acá se guarda la compra en el backend
     funcion, pelicula, resumen = cargar_compra(funcion_id)
-    return render_template("compra/pago.html", funcion=funcion, pelicula=pelicula, resumen=resumen)
 
+    # Valores que se vuelven a mostrar en el formulario (el CVV nunca se devuelve)
+    datos = {"titular": "", "numero": "", "vencimiento": ""}
+
+    if request.method == "POST":
+        errores = validar_tarjeta(request.form)
+        if not errores:
+            return redirect(url_for("compra.exito"))
+        for error in errores:
+            flash(error, "danger")
+        datos = {
+            "titular": request.form.get("titular", ""),
+            "numero": request.form.get("numero", ""),
+            "vencimiento": request.form.get("vencimiento", ""),
+        }
+
+    return render_template("compra/pago.html", funcion=funcion, pelicula=pelicula,
+                           resumen=resumen, datos=datos)
 
 @compra_bp.route("/exito")
 def exito():
