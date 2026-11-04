@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Mi perfil{% endblock %}
+{% block title %}Editar perfil{% endblock %}
 {% block content %}
 <div class="layout-perfil">
   <div class="panel panel-grande texto-centro">
     {% include 'components/icono_usuario.html' %}
     <h2 style="margin-top:.5rem">{{ usuario.nombre }}</h2>
     <p class="tenue">{{ usuario.email }}</p>
-    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('publico.perfil') }}">Mi perfil</a>
+    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('publico.editar_perfil') }}">Editar perfil</a>
     <hr>
     <div class="stats">
       <div><div class="kpi">{{ historial|length }}</div><span class="chico">Compras</span></div>

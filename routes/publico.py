@@ -65,3 +65,24 @@ def perfil():
             vistas = vistas + 1
     return render_template("perfil.html", usuario=session["usuario"], historial=historial, vistas=vistas)
 
+@publico_bp.route("/perfil/editar", methods=["GET", "POST"])
+def editar_perfil():
+    respuesta = revisar_login()
+    if respuesta is not None:
+        return respuesta
+
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        email = request.form.get("email", "").strip()
+        contraseña = request.form.get("contraseña", "").strip()
+        if not nombre or "@" not in email:
+            flash("Ingresá un nombre y un correo electrónico válido.", "danger")
+            return render_template("editar_perfil.html", usuario=session["usuario"])
+
+        usuario = dict(session["usuario"])
+        usuario.update({"nombre": nombre, "email": email, "contraseña": contraseña})
+        session["usuario"] = usuario
+        flash("Tus datos se actualizaron correctamente.", "success")
+        return redirect(url_for("publico.perfil"))
+
+    return render_template("editar_perfil.html", usuario=session["usuario"])

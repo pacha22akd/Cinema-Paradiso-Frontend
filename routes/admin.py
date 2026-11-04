@@ -1,7 +1,4 @@
 # Backoffice del administrador. Todas las rutas de acá empiezan con /admin.
-# @admin_bp.route("/perfil")
-#def perfil():
-    #return render_template("admin/perfil.html", admin=session["usuario"]) modificacion de perfil
 
 from flask import Blueprint, redirect, render_template, request, session, url_for
 
@@ -19,7 +16,6 @@ def proteger():
 def dashboard():
     return render_template("admin/dashboard.html", est=mock_data.get_estadisticas())
 
-
 @admin_bp.route("/peliculas", methods=["GET", "POST"])
 def peliculas():
     if request.method == "POST":
@@ -27,16 +23,13 @@ def peliculas():
     peliculas = mock_data.get_peliculas()
     return render_template("admin/peliculas.html", peliculas=peliculas, cines=mock_data.get_cines())
 
-
 @admin_bp.route("/servicios")
 def servicios():
     return render_template("admin/servicios.html", servicios=mock_data.get_servicios())
 
-
 @admin_bp.route("/servicios/guardar", methods=["POST"])
 def guardar_servicio():
     return redirect(url_for("admin.servicios"))  # Hito 3: guardar en el backend
-
 
 @admin_bp.route("/servicios/<int:servicio_id>/baja", methods=["POST"])
 def baja_servicio(servicio_id):
