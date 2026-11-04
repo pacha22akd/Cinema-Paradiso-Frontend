@@ -35,7 +35,7 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1rem 0; }
 .ancho-total { grid-column: 1 / -1; }
 .layout-compra { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start; }
 .layout-perfil { display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem; align-items: start; }
-.layout-programa { display: grid; grid-template-columns: 220px 1fr 300px; gap: 2rem; align-items: start; }
+.layout-programa { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
 .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: 70vh; }
 
 /* ---------- Textos y utilidades ---------- */
@@ -170,8 +170,6 @@ th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; opacit
 .promos-panel { margin-top: 1rem; max-width: 1027px; 
   margin-left: auto; margin-right: auto; }
 
-
-
 /* ---------- Detalle de película ---------- */
 .cine-selector { background: #fff; border-radius: .4rem; margin-bottom: 1.25rem; color: #222; }
 .cine-selector summary { padding: .6rem .75rem; cursor: pointer; color: var(--rojo); font-size: .8rem; text-transform: uppercase;
@@ -181,9 +179,11 @@ th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; opacit
 .cine-selector-cuerpo { padding: 0 .75rem .75rem; display: flex; flex-direction: column; gap: .4rem; }
 .cine-selector-cuerpo a { border: 1px solid var(--rojo); border-radius: .3rem; padding: .3rem .5rem; font-size: .8rem; text-align: center; }
 .cine-selector-cuerpo a:hover { background: var(--rojo); color: #fff; }
-.programa-sinopsis { text-align: center; }
-.programa-sinopsis h2 { font-size: 2.4rem; }
-.programa-poster h1 { font-size: 2rem; }
+.programa-sinopsis { text-align: center; align-self: start; margin-top: 3rem; padding-left: 2rem;}
+.programa-sinopsis h2 { font-size: 3rem; }
+.programa-poster { text-align: center; padding-left: 6rem; }
+.programa-poster h1 { font-size: 3rem; }
+.programa-poster .poster-wrap { max-width: 300px; margin: 0 auto; }
 
 /* ---------- Pasos de compra ---------- */
 .stepper { display: flex; gap: .25rem; overflow-x: auto; margin-bottom: 1.5rem; }
