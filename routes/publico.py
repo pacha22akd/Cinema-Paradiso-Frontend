@@ -1,4 +1,5 @@
 # Pantallas públicas: cartelera, detalle de película, login y perfil.
+import unicodedata
 from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 
 from services import mock_data
@@ -11,6 +12,26 @@ def cartelera():
     peliculas = mock_data.get_peliculas()
     return render_template("index.html", peliculas=peliculas)
 
+def sin_acentos(texto):
+    #Pasa a minúsculas y quita los acentos para que siempre coincida
+    texto = unicodedata.normalize("NFD", texto.lower())
+    return "".join(letra for letra in texto if unicodedata.category(letra) != "Mn") #saca acentos y espacios 
+
+@publico_bp.route("/peliculas")
+def peliculas():
+    busqueda = request.args.get("q", "").strip()
+    todas = mock_data.get_peliculas()
+
+    if busqueda:
+        buscado = sin_acentos(busqueda)
+        resultado = []
+        for peli in todas:
+            if buscado in sin_acentos(peli["titulo"]):
+                resultado.append(peli)
+    else:
+        resultado = todas
+
+    return render_template("cartelera.html", peliculas=resultado, busqueda=busqueda)
 
 @publico_bp.route("/pelicula/<int:pelicula_id>")
 def pelicula(pelicula_id):
