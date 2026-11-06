@@ -45,8 +45,9 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1rem 0; }
 .texto-rojo { color: var(--rojo); }
 .separado-arriba { margin-top: 2.5rem; }
 .eyebrow { display: flex; align-items: center; gap: .6rem; color: var(--rojo); font-family: var(--fuente-mono);
-  font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; margin: 2.5rem 0 .25rem; }
+  font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; margin: 2.5rem 0 .25rem; }
 .eyebrow::before { content: ""; width: 1.5rem; border-top: 2px solid var(--rojo); }
+.eyebrow-cartelera { margin-top: .2rem; }
 .acciones { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1.5rem; }
 .linea { display: flex; justify-content: space-between; gap: 1rem; }
 .botones-fila { display: flex; flex-wrap: wrap; gap: .5rem; }
@@ -236,6 +237,16 @@ th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; opacit
 .error-codigo { font-family: var(--fuente-titulo); font-size: 8rem; line-height: 1; color: var(--rojo); }
 .tilde-grande { font-size: 6rem; line-height: 1; color: var(--rojo); }
 .centrado { text-align: center; padding: 4rem 0; }
+
+/* ---------- Botón de cartera (navbar) y buscador de películas ---------- */
+.menu > a.boton-cartera { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border: 1px solid var(--borde);
+  border-radius: .5rem; color: var(--crema); }
+.menu > a.boton-cartera:hover { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+
+.buscador { display: flex; gap: .5rem; margin: 1rem 0 1.25rem; max-width: 36rem; }
+.buscador input[type=search] { flex: 1; min-width: 0; padding: .55rem .75rem; background: var(--panel); color: var(--crema);
+  border: 1px solid var(--borde); border-radius: .4rem; font: inherit; }
+.buscador input[type=search]:focus { outline: 2px solid var(--rojo); border-color: var(--rojo); }
 
 /* ---------- Footer ---------- */
 .pie { border-top: 1px solid var(--borde); padding: 1.5rem 0; margin-top: 3rem; }

@@ -1,0 +1,36 @@
+{# Barra de búsqueda: usa GET, así la búsqueda queda en la URL (/peliculas?q=salt) #}
+{% extends 'base.html' %}
+{% block title %}Películas{% endblock %}
+{% block content %}
+<p class="eyebrow eyebrow-pelis">Cartelera</p>
+<h1>Películas</h1>
+
+<form class="buscador" method="GET" action="{{ url_for('publico.peliculas') }}" role="search">
+  <input type="search" name="q" id="buscar-pelicula" value="{{ búsqueda }}" placeholder="Buscar..."
+         aria-label="Buscar película por nombre" autocomplete="off">
+  <button class="boton boton-rojo" type="submit">Buscar</button>
+  {% if busqueda %}
+    <a class="boton boton-claro" href="{{ url_for('publico.peliculas') }}">Limpiar</a>
+  {% endif %}
+</form>
+
+{% if q %}
+  <p class="chico tenue">
+    {{ peliculas|length }} resultado{{ '' if peliculas|length == 1 else 's' }} para "{{ busqueda }}"
+  </p>
+{% endif %}
+
+{% if peliculas %}
+  <div class="grilla-peliculas">
+    {% for p in peliculas %}
+      <div>{% include 'components/card_pelicula.html' %}</div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="panel texto-centro">
+    <h3>Sin resultados</h3>
+    <p class="tenue">No encontramos ninguna película que se llame "{{ busqueda }}".</p>
+    <a class="boton boton-borde" href="{{ url_for('publico.peliculas') }}">Ver todas las películas</a>
+  </div>
+{% endif %}
+{% endblock %}
