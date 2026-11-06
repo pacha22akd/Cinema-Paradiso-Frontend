@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Cine Paradiso{% endblock %} · Cine Paradiso</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Playfair+Display:wght@500&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  {% block navbar %}{% include 'components/navbar.html' %}{% endblock %}
+  <main>
+    {% block main %}
+      <div class="contenedor pagina">
+        {% include 'components/mensajes.html' %}
+        {% block content %}{% endblock %}
+      </div>
+    {% endblock %}
+  </main>
+  {% block footer %}{% include 'components/footer.html' %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{# request.values tiene todo lo que el usuario eligió en los pasos anteriores.
+   Lo reenviamos como campos ocultos para no perderlo.
+   Los datos de la tarjeta se saltean: nunca deben viajar como campos ocultos. #}
+{% set tarjeta = ['titular', 'numero', 'vencimiento', 'cvv'] %}
+{% for clave, valor in request.values.items(multi=True) %}
+  {% if clave not in tarjeta %}
+  <input type="hidden" name="{{ clave }}" value="{{ valor }}">
+  {% endif %}
+{% endfor %}

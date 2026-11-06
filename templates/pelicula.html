@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}{{ pelicula.titulo }}{% endblock %}
+{% block content %}
+<div class="layout-programa">
+
+  {# Centro: sinopsis #}
+  <div class="programa-sinopsis">
+    <h2>Sinopsis</h2>
+    <p>{{ pelicula.sinopsis }}</p>
+    <p class="tenue chico">{{ pelicula.genero }} · {{ pelicula.duracion }} min · {{ pelicula.clasificacion }} · {{ pelicula.pais }}</p>
+    <a class="boton boton-rojo" href="{{ url_for('compra.horario', pelicula_id=pelicula.id) }}">Comprar entradas</a>
+  </div>
+
+  {# Derecha: título y póster #}
+  <div class="programa-poster">
+    <h1>{{ pelicula.titulo }}</h1>
+    <div class="poster-wrap">
+      <img src="{{ pelicula.poster }}" alt="Póster de {{ pelicula.titulo }}">
+      <span class="poster-tag {{ pelicula.clase_etiqueta }}">{{ pelicula.etiqueta }}</span>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

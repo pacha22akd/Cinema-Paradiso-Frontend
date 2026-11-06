@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Editar perfil{% endblock %}
+{% block content %}
+<div class="layout-perfil">
+  <div class="panel panel-grande texto-centro">
+    {% include 'components/icono_usuario.html' %}
+    <h2 style="margin-top:.5rem">{{ usuario.nombre }}</h2>
+    <p class="tenue">{{ usuario.email }}</p>
+    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('publico.editar_perfil') }}">Editar perfil</a>
+    <hr>
+    <div class="stats">
+      <div><div class="kpi">{{ historial|length }}</div><span class="chico">Compras</span></div>
+      <div><div class="kpi">{{ vistas }}</div><span class="chico">Vistas</span></div>
+    </div>
+  </div>
+  <div>
+    <h2>Mis entradas y consumos</h2>
+    <div class="tabla-contenedor">
+      <table>
+        <thead><tr><th>Película</th><th>Cine</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for h in historial %}
+          <tr>
+            <td>{{ h.pelicula }}</td><td>{{ h.cine }}</td>
+            <td>{{ h.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>${{ h.total }}</td>
+            <td>{% if h.estado == 'Utilizada' %}<span class="insignia insignia-verde">{{ h.estado }}</span>{% else %}<span class="insignia insignia-roja">{{ h.estado }}</span>{% endif %}</td>
+            <td>
+              {% if h.estado == 'Activa' %}
+                <form method="POST" action="#" data-confirmar="¿Cancelar esta compra?">
+                  <button class="boton boton-peligro boton-chico" type="submit">Cancelar</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

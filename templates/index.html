@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Cartelera{% endblock %}
+{% block content %}
+<h1 class="saludo">Bienvenid@ {{ session.usuario.nombre if session.usuario else '' }}</h1>
+
+<section class="carrusel-caja" data-carrusel>
+  <button type="button" class="carrusel-flecha izquierda" data-carrusel-anterior aria-label="Anterior">‹</button>
+  <div class="carrusel">
+  <div class="banner fondo-imagen1"><h2>Tu plan de miércoles<br><span class="texto-rojo">al 50% off</span></h2>
+    <p class="chico tenue">No combinable con otras promociones. Válido en los tres cines.</p></div>
+  <div class="banner fondo-imagen2"><h2>Estrenos de la semana<br><span class="texto-rojo">solo en Paradiso</span></h2>
+    <p class="chico tenue">Mirá la cartelera completa de abajo.</p></div>
+  <div class="banner fondo-imagen3"><h2>Combo pareja<br><span class="texto-rojo">pochoclo + 2 gaseosas</span></h2>
+    <p class="chico tenue">Agregalo en el paso de comida al comprar tus entradas.</p></div>
+  </div>
+  <button type="button" class="carrusel-flecha derecha" data-carrusel-siguiente aria-label="Siguiente">›</button>
+</section>
+
+<p class="eyebrow">En cartelera</p>
+<h2>Películas</h2>
+<div class="grilla-peliculas">
+  {% for p in peliculas %}
+    <div>{% include 'components/card_pelicula.html' %}</div>
+  {% endfor %}
+</div>
+
+<h2 class="texto-centro separado-arriba">¡Nuestras promos!</h2>
+<div class="panel promos-panel">
+  <h3>Disfrutá en Cine Paradiso</h3>
+  <div class="carrusel-caja" data-carrusel>
+    <div class="carrusel carrusel-promos">
+      {% for titulo, texto, imagen in [
+          ('Miércoles 50% off', 'Todas las funciones', 'descuento.png'), 
+          ('Club Black', 'Hasta 25% off', 'club.png'), 
+          ('Combo pareja', 'Pochoclo + 2 gaseosas', 'combo.png')
+      ] %}
+        <div class="banner banner-promo">
+          <img src="{{ url_for('static', filename='images/' + imagen) }}" alt="{{ titulo }}" class="imagen-promo">
+          <br>
+          <h3>{{ titulo }}</h3>
+          <p class="chico">{{ texto }}</p>
+          <div><a class="boton boton-rojo boton-chico" href="#">Ver más</a></div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

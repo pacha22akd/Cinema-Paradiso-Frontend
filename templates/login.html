@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar sesión{% endblock %}
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block main %}
+<div class="pagina-login">
+  <a class="logo" href="{{ url_for('publico.cartelera') }}">{% include 'components/icono_logo.html' %} Cine Paradiso</a>
+  <div class="login-centro">
+    <div class="panel-claro tarjeta-login">
+      <h1>Bienvenido de nuevo</h1>
+      <p class="chico" style="color:#777">Introduce tus datos para acceder a tu cuenta.</p>
+      {% include 'components/mensajes.html' %}
+      <form method="POST" action="{{ url_for('publico.login') }}">
+        <div class="campo">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" placeholder="nombre@ejemplo.com" required>
+        </div>
+        <div class="campo">
+          <label for="password">Contraseña</label>
+          <div class="campo-password">
+            <input type="password" id="password" name="password" placeholder="Introduce tu contraseña" required minlength="6">
+            <button type="button" class="boton boton-borde boton-chico" data-mostrar-password="password">Mostrar</button>
+          </div>
+        </div>
+        <div class="linea chico" style="margin-bottom:1rem">
+          <label class="check"><input type="checkbox" name="recordar"> Recordar sesión</label>
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+        <button class="boton boton-rojo boton-bloque" type="submit">Iniciar sesión →</button>
+      </form>
+      <div class="alerta alerta-simple">
+        <strong>Usuarios de prueba</strong><br>
+        Cliente: lucia@ejemplo.com / cliente123<br>
+        Admin: admin@cineparadiso.com / admin123
+      </div>
+      <p class="texto-centro chico" style="margin:1rem 0 0;color:#777">¿Aún no tienes cuenta? <a href="{{ url_for('publico.registro') }}">Regístrate</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

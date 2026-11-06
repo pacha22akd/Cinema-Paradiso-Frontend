@@ -1,0 +1,37 @@
+{% extends 'compra/compra_base.html' %}
+{% set paso = 5 %}
+{% block title %}Pago{% endblock %}
+{% block paso %}
+<h2>Pago</h2>
+<form method="POST" action="{{ url_for('compra.pago', funcion_id=funcion.id) }}" autocomplete="off">
+  {% include 'components/estado_compra.html' %}
+  <div class="panel panel-grande">
+    <p>Total a pagar: <strong style="font-size:1.6rem">${{ resumen.total }}</strong></p>
+    <hr>
+    <h3>Datos de la tarjeta</h3>
+    <div class="campo">
+      <label for="titular">Nombre del titular</label>
+      <input type="text" id="titular" name="titular" value="{{ datos.titular }}" placeholder="Como figura en la tarjeta" autocomplete="cc-name" required>
+    </div>
+    <div class="campo">
+      <label for="numero">Número de tarjeta</label>
+      <input type="text" id="numero" name="numero" value="{{ datos.numero }}" placeholder="1234 5678 9012 3456" inputmode="numeric" maxlength="23" autocomplete="cc-number" required>
+    </div>
+    <div class="form-grilla">
+      <div class="campo">
+        <label for="vencimiento">Vencimiento (MM/AA)</label>
+        <input type="text" id="vencimiento" name="vencimiento" value="{{ datos.vencimiento }}" placeholder="MM/AA" inputmode="numeric" maxlength="5" autocomplete="cc-exp" required>
+      </div>
+      <div class="campo">
+        <label for="cvv">CVV</label>
+        <input type="password" id="cvv" name="cvv" placeholder="123" inputmode="numeric" maxlength="4" autocomplete="cc-csc" required>
+      </div>
+    </div>
+    <p class="chico tenue" style="margin:1rem 0 0">Te enviaremos la factura y el QR de ingreso a {{ session.usuario.email }}.</p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton-claro" href="{{ url_for('compra.confirmacion', funcion_id=funcion.id) }}">← Volver</a>
+    <button class="boton boton-rojo" type="submit">Confirmar compra</button>
+  </div>
+</form>
+{% endblock %}

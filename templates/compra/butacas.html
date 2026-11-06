@@ -1,0 +1,36 @@
+{% extends 'compra/compra_base.html' %}
+{% set paso = 2 %}
+{% block title %}Butacas{% endblock %}
+{% block paso %}
+<h2>Elegí tus butacas <small class="chico tenue">({{ resumen.cantidad_entradas }} entradas)</small></h2>
+<form method="GET" action="{{ url_for('compra.comida', funcion_id=funcion.id) }}" data-max-butacas="{{ resumen.cantidad_entradas }}">
+  {% include 'components/estado_compra.html' %}
+  <div class="panel panel-grande">
+    <div class="pantalla"></div>
+    <div class="texto-centro chico tenue" style="margin-bottom:1rem">PANTALLA</div>
+    <div class="mapa">
+      {% for fila in filas %}
+        <div class="fila"><span class="fila-letra">{{ fila }}</span>
+          {% for col in columnas %}
+            {% set codigo = fila ~ col %}
+            <label class="butaca" title="{{ codigo }}">
+              <input type="checkbox" name="butacas" value="{{ codigo }}" {% if codigo in ocupadas %}disabled{% endif %}>
+              <span>{{ col }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="contador-butacas" id="contador-butacas"></div>
+    <div class="leyenda">
+      <span><i class="leyenda-dot" style="background:#4a3c52"></i> Libre</span>
+      <span><i class="leyenda-dot" style="background:var(--rojo)"></i> Elegida</span>
+      <span><i class="leyenda-dot" style="background:#151017"></i> Ocupada</span>
+    </div>
+  </div>
+  <div class="acciones">
+    <a class="boton boton-claro" href="{{ url_for('compra.entradas', funcion_id=funcion.id) }}">← Volver</a>
+    <button class="boton boton-rojo" type="submit" id="boton-continuar">Continuar →</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %}ABM de servicios{% endblock %}
+{% block admin_content %}
+<h1>Servicios</h1>
+<div class="panel panel-grande" style="margin-bottom:1.5rem">
+  <h3>Alta / modificación</h3>
+  <form method="POST" action="{{ url_for('admin.guardar_servicio') }}" class="form-grilla">
+    <div class="campo"><label for="nombre">Nombre</label><input type="text" id="nombre" name="nombre" required></div>
+    <div class="campo"><label for="categoria">Categoría</label>
+      <select id="categoria" name="categoria">
+        <option>Comida</option><option>Bebida</option><option>Estacionamiento</option><option>VIP</option></select></div>
+    <div class="campo"><label for="precio">Precio</label><input type="number" min="0" step="0.01" id="precio" name="precio" required></div>
+    <div class="campo" style="align-self:end"><button class="boton boton-rojo boton-bloque" type="submit">Guardar</button></div>
+  </form>
+</div>
+<div class="tabla-contenedor">
+  <table>
+    <thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+    {% for s in servicios %}
+      <tr><td>{{ s.nombre }}</td><td>{{ s.categoria }}</td><td>${{ s.precio }}</td>
+        <td>{% if s.activo %}<span class="insignia insignia-verde">Activo</span>{% else %}<span class="insignia">De baja</span>{% endif %}</td>
+        <td><div class="celda-acciones">
+          <a class="boton boton-claro boton-chico" href="#">Editar</a>
+          <form method="POST" action="{{ url_for('admin.baja_servicio', servicio_id=s.id) }}">
+            <button class="boton boton-rojo boton-chico" type="submit" {% if not s.activo %}disabled{% endif %}>Dar de baja</button>
+          </form>
+        </div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

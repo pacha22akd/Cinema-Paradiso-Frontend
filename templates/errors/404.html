@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Error 404{% endblock %}
+{% block content %}
+<div class="centrado">
+  <div class="error-codigo">404</div>
+  <h1>No encontramos la página que buscás.</h1>
+  <a class="boton boton-rojo" href="{{ url_for('publico.cartelera') }}">Volver a la cartelera</a>
+</div>
+{% endblock %}

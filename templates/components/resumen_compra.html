@@ -1,0 +1,22 @@
+<aside class="panel">
+  <div class="resumen-poster">
+    <img src="{{ pelicula.poster }}" alt="">
+    <div>
+      <h3>{{ pelicula.titulo }}</h3>
+      {% if funcion %}
+        <div class="chico tenue">{{ funcion.cine.nombre }} · {{ funcion.sala }}</div>
+        <div class="chico tenue">{{ funcion.inicio.strftime('%d/%m/%Y %H:%M') }} · {{ funcion.formato }}</div>
+      {% endif %}
+    </div>
+  </div>
+  {% if resumen %}
+    <hr>
+    <ul class="lista-simple">
+      {% for e in resumen.entradas %}<li class="linea"><span>{{ e.cantidad }} × {{ e.nombre }}</span><span>${{ e.subtotal }}</span></li>{% endfor %}
+      {% for s in resumen.servicios %}<li class="linea"><span>{{ s.cantidad }} × {{ s.nombre }}</span><span>${{ s.subtotal }}</span></li>{% endfor %}
+    </ul>
+    {% if resumen.butacas %}<div class="chico">Butacas: <strong>{{ resumen.butacas|join(', ') }}</strong></div>{% endif %}
+    <hr>
+    <div class="linea"><strong>Total</strong><strong>${{ resumen.total }}</strong></div>
+  {% endif %}
+</aside>
