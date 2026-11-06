@@ -105,3 +105,8 @@ def editar_perfil():
         return redirect(url_for("publico.perfil"))
 
     return render_template("editar_perfil.html", usuario=session["usuario"])
+
+@publico_bp.route("/registro")
+def registro():
+    return render_template("registro.html")
+

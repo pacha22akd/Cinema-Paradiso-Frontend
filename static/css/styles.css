@@ -104,7 +104,7 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1rem 0; }
 /* ---------- Formularios ---------- */
 .campo { margin-bottom: 1rem; }
 .campo label { display: block; margin-bottom: .25rem; font-size: .875rem; font-weight: 600; }
-input[type=text], input[type=email], input[type=password], input[type=number],
+input[type=text], input[type=tel], input[type=email], input[type=password], input[type=number],
 input[type=datetime-local], input[type=file], select, textarea {
   width: 100%; padding: .55rem .7rem; border: 1px solid #ccc; border-radius: .4rem; background: #fff; color: #222; font: inherit; }
 input[type=number].cantidad { width: 5rem; text-align: center; }
