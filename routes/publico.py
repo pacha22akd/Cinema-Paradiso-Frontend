@@ -1,7 +1,8 @@
 # Pantallas públicas: cartelera, detalle de película, login y perfil.
 import unicodedata
+import requests
 from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
-
+from services.api import API_URL, encabezado_auth
 from services import mock_data
 from services.auth import revisar_login
 
@@ -77,12 +78,22 @@ def perfil():
     if respuesta is not None:
         return respuesta
 
-    historial = mock_data.get_historial()
-    vistas = 0
+    respuesta_perfil = requests.get(f"{API_URL}/usuarios/perfil", headers=encabezado_auth())
+    respuesta_compras = requests.get(f"{API_URL}/compras?per_page=100", headers=encabezado_auth())
+
+    if respuesta_perfil.status_code != 200 or respuesta_compras.status_code != 200:
+        flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
+        return redirect(url_for("publico.login"))
+
+    perfil_usuario = respuesta_perfil.json()
+    historial = respuesta_compras.json()["data"]
+
+    vistas = 0 
+
     for compra in historial:
-        if compra["estado"] == "Utilizada":
+        if compra["estado"] == "usada":
             vistas = vistas + 1
-    return render_template("perfil.html", usuario=session["usuario"], historial=historial, vistas=vistas)
+    return render_template("perfil.html", usuario=perfil_usuario["datos_personales"], historial=historial, vistas=vistas)
 
 @publico_bp.route("/perfil/editar", methods=["GET", "POST"])
 def editar_perfil():
