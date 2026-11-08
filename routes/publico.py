@@ -106,13 +106,21 @@ def perfil():
         return redireccion
         
     # Si pasa, significa que está logueado. Pedimos los datos al backend.
-    headers = {"Authorization": f"Bearer {session['token']}"}
-    respuesta = requests.get(f"{current_app.config['API_URL']}/usuarios/perfil", headers=headers)
-    
-    if respuesta.status_code == 200:
-        return render_template('perfil.html', perfil=respuesta.json())
-    
-    return redirect(url_for('publico.login'))
+    respuesta_perfil = llamar_api("GET", "/usuarios/perfil")
+    respuesta_compras = llamar_api("GET", "/compras", parametros={"per_page": 100})
+
+    if respuesta_perfil.status_code != 200 or respuesta_compras.status_code != 200:
+        flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
+        return redirect(url_for('publico.login'))
+
+    historial = respuesta_compras.json()["data"]
+
+    vistas = 0
+    for compra in historial:
+        if compra["estado"] == "usada":
+            vistas = vistas + 1
+
+    return render_template('perfil.html', perfil=respuesta_perfil.json(), historial=historial, vistas=vistas)
 
 @publico_bp.route("/perfil/editar", methods=["GET", "POST"])
 def editar_perfil():
@@ -133,15 +141,12 @@ def editar_perfil():
         if password != "":
             datos["password"] = password
             
-        respuesta_api = requests.patch(f"{API_URL}/usuarios/perfil", json=datos, headers=encabezado_auth())
+        respuesta_api = llamar_api("PATCH", "/usuarios/perfil", datos=datos)
 
         if respuesta_api.status_code == 200:
             actualizado = respuesta_api.json()
             # Se actualiza la sesión para que la barra de arriba muestre el nombre nuevo
-            usuario = dict(session["usuario"])
-            usuario["nombre"] = actualizado["nombre"]
-            usuario["email"] = actualizado["email"]
-            session["usuario"] = usuario
+            session["usuario_nombre"] = actualizado["nombre"]
             flash("Tus datos se actualizaron correctamente.", "success")
             return redirect(url_for("publico.perfil"))
 
@@ -151,7 +156,7 @@ def editar_perfil():
         return render_template("editar_perfil.html", usuario=datos)
 
     # GET: se traen los datos actuales para completar el formulario
-    respuesta_api = requests.get(f"{API_URL}/usuarios/perfil", headers=encabezado_auth())
+    respuesta_api = llamar_api("GET", "/usuarios/perfil")
     if respuesta_api.status_code != 200:
         flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
         return redirect(url_for("publico.login"))
