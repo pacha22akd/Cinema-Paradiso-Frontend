@@ -4,8 +4,12 @@
 <div class="layout-perfil">
   <div class="panel panel-grande texto-centro">
     {% include 'components/icono_usuario.html' %}
-    <h2 style="margin-top:.5rem">{{ usuario.nombre }}</h2>
-    <p class="tenue">{{ usuario.email }}</p>
+    <h2 style="margin-top:.5rem">{{ perfil.datos_personales.nombre }} {{ perfil.datos_personales.apellido }}</h2>
+    <p class="tenue">{{ perfil.datos_personales.email }}</p>
+    <div class="chico tenue" style="margin-bottom: 1.5rem;">
+      <p>Teléfono: {{ perfil.datos_personales.telefono or 'No registrado' }}</p>
+      <p>Miembro desde: {{ perfil.datos_personales.fecha_registro }}</p>
+    </div>
     <a class="btn btn-outline-primary btn-sm" href="{{ url_for('publico.editar_perfil') }}">Editar perfil</a>
     <hr>
     <div class="stats">

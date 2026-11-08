@@ -1,4 +1,3 @@
-# Para correrlo:  python app.py   y abrir http://localhost:5001
 import os
 
 from flask import Flask, render_template
@@ -9,8 +8,8 @@ from routes.admin import admin_bp
 
 app = Flask(__name__)
 
-# Flask necesita una clave secreta para poder guardar la sesión del usuario (el login)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "clave-solo-para-desarrollo")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["API_URL"] = os.environ.get("API_URL")
 
 app.register_blueprint(publico_bp)
 app.register_blueprint(compra_bp, url_prefix="/comprar")

@@ -10,19 +10,17 @@
   <a href="{{ url_for('publico.peliculas') }}">Cartelera</a>
   
   <div class="menu-usuario">
-  {% if session.usuario %}
+  {% if session.get('token') %}
     
-    {% if session.usuario.rol == 'admin' %}
+    {% if session.get('rol') == 'administrador' %}
       <a class="boton boton-borde boton-chico" href="{{ url_for('admin.dashboard') }}">Backoffice</a>
     {% endif %}
     
-    <form method="POST" action="{{ url_for('publico.logout') }}">
-      <button class="boton boton-rojo boton-chico" type="submit">Salir</button>
-    </form>
+    <a href="{{ url_for('publico.logout') }}" class="boton boton-rojo boton-chico">Salir</a>
 
     <a href="{{ url_for('publico.perfil') }}" class="perfil-usuario" aria-label="Mi perfil">
       {% include 'components/icono_usuario.html' %}
-      <span class="chico tenue">{{ session.usuario.nombre }}</span>
+      <span class="chico tenue">{{ session.get('usuario_nombre') }}</span>
     </a>
 
   {% else %}

@@ -1,7 +1,7 @@
 # Pantallas públicas: cartelera, detalle de película, login y perfil.
 import unicodedata
 import requests
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for, current_app
 from services.api import API_URL, encabezado_auth
 from services import mock_data
 from services.auth import revisar_login
@@ -44,56 +44,72 @@ def pelicula(pelicula_id):
     return render_template("pelicula.html", pelicula=peli, cines=cines, funciones=funciones)
 
 
-@publico_bp.route("/login", methods=["GET", "POST"])
+@publico_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        email = request.form.get("email", "")
-        password = request.form.get("password", "")
-        usuario = mock_data.autenticar(email, password)
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-        if usuario is None:
-            flash("Correo o contraseña incorrectos.", "danger")
-            return redirect(url_for("publico.login"))
+        try:
+            # 1. Petición al Backend (JWT)
+            respuesta = requests.post(
+                f"{current_app.config['API_URL']}/sesiones", 
+                json={"email": email, "password": password}
+            )
 
-        session.clear()
-        session["usuario"] = usuario  # guardamos el usuario en la sesión
+            if respuesta.status_code == 200:
+                datos = respuesta.json()
+                
+                # 2. Guardamos los datos en la sesión del Frontend
+                session['token'] = datos['token']
+                session['usuario_nombre'] = datos['usuario']['nombre']
+                session['usuario_id'] = datos['usuario']['id']
+                session['rol'] = datos['usuario']['rol'] # Guarda 'administrador' o 'cliente'
 
-        if usuario["rol"] == "admin":
-            return redirect(url_for("admin.dashboard"))
-        return redirect(url_for("publico.cartelera"))
+                # 3. Redirigimos según el rol
+                next_page = request.args.get('next')
+                if next_page:
+                    return redirect(next_page)
 
-    # GET = el usuario recién entró a la página, mostramos el formulario
-    return render_template("login.html")
+                if session['rol'] == 'administrador':
+                    return redirect(url_for('admin.dashboard')) 
+                
+                return redirect(url_for('publico.cartelera'))
+                
+            else:
+                # Si el back devolvió error (400, 401, 403)
+                error_data = respuesta.json()
+                mensaje = error_data.get('errors', [{}])[0].get('description', 'Credenciales inválidas')
+                flash(mensaje, 'error')
+
+        except requests.exceptions.RequestException:
+            flash("Error de conexión con el servidor", "error")
+
+    return render_template('login.html')
 
 
-@publico_bp.route("/logout", methods=["POST"])
+@publico_bp.route('/logout')
 def logout():
-    session.clear()  # borramos la sesión
-    return redirect(url_for("publico.cartelera"))
+    session.clear() # Borra el token y todos los datos
+    flash("Sesión cerrada correctamente", "exito")
+    return redirect(url_for('publico.cartelera'))
 
 
-@publico_bp.route("/perfil")
+@publico_bp.route('/perfil')
 def perfil():
-    respuesta = revisar_login()
-    if respuesta is not None:
-        return respuesta
-
-    respuesta_perfil = requests.get(f"{API_URL}/usuarios/perfil", headers=encabezado_auth())
-    respuesta_compras = requests.get(f"{API_URL}/compras?per_page=100", headers=encabezado_auth())
-
-    if respuesta_perfil.status_code != 200 or respuesta_compras.status_code != 200:
-        flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
-        return redirect(url_for("publico.login"))
-
-    perfil_usuario = respuesta_perfil.json()
-    historial = respuesta_compras.json()["data"]
-
-    vistas = 0 
-
-    for compra in historial:
-        if compra["estado"] == "usada":
-            vistas = vistas + 1
-    return render_template("perfil.html", usuario=perfil_usuario["datos_personales"], historial=historial, vistas=vistas)
+    # Llamamos a tu función. Si no está logueado, devuelve una redirección.
+    redireccion = revisar_login()
+    if redireccion:
+        return redireccion
+        
+    # Si pasa, significa que está logueado. Pedimos los datos al backend.
+    headers = {"Authorization": f"Bearer {session['token']}"}
+    respuesta = requests.get(f"{current_app.config['API_URL']}/usuarios/perfil", headers=headers)
+    
+    if respuesta.status_code == 200:
+        return render_template('perfil.html', perfil=respuesta.json())
+    
+    return redirect(url_for('publico.login'))
 
 @publico_bp.route("/perfil/editar", methods=["GET", "POST"])
 def editar_perfil():
