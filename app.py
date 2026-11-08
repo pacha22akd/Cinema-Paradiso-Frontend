@@ -1,10 +1,13 @@
 import os
 
+from dotenv import load_dotenv
 from flask import Flask, render_template
 
 from routes.publico import publico_bp
 from routes.compra import compra_bp
 from routes.admin import admin_bp
+
+load_dotenv()
 
 app = Flask(__name__)
 
