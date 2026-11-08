@@ -155,7 +155,50 @@ def editar_perfil():
 
     return render_template("editar_perfil.html", usuario=respuesta_api.json()["datos_personales"])
 
-@publico_bp.route("/registro")
+@publico_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
-    return render_template("registro.html")
+    if request.method == 'POST':
+        # 1. Capturamos los datos del formulario HTML
+        nombre = request.form.get('nombre')
+        apellido = request.form.get('apellido')
+        email = request.form.get('email')
+        telefono = request.form.get('telefono')
+        password = request.form.get('password')
+        confirmar_password = request.form.get('confirmar_password')
 
+        # 2. Validación rápida en el frontend: ¿Las contraseñas coinciden?
+        if password != confirmar_password:
+            flash("Las contraseñas no coinciden. Intentalo de nuevo.", "error")
+            return redirect(url_for('publico.registro'))
+
+        # 3. Preparamos el JSON para el backend
+        datos = {
+            "nombre": nombre,
+            "apellido": apellido,
+            "email": email,
+            "telefono": telefono,
+            "password": password
+        }
+
+        try:
+            # 4. Hacemos la petición POST al endpoint de usuarios del backend
+            respuesta = requests.post(
+                f"{current_app.config['API_URL']}/usuarios", 
+                json=datos
+            )
+
+            if respuesta.status_code == 201:
+                # Si el backend responde 201 Created, fue un éxito
+                flash("¡Registro exitoso! Ya podés iniciar sesión.", "exito")
+                return redirect(url_for('publico.login'))
+            else:
+                # Si hubo un error (400 por validación, 409 por duplicado)
+                error_data = respuesta.json()
+                mensaje = error_data.get('errors', [{}])[0].get('description', 'Error al registrar el usuario')
+                flash(mensaje, 'error')
+
+        except requests.exceptions.RequestException:
+            flash("Error de conexión con el servidor. Intentá más tarde.", "error")
+
+    # Si es GET, muestra el template de registro
+    return render_template('registro.html')
