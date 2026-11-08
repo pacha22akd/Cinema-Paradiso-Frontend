@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Editar perfil{% endblock %}
+{% block title %}Mi perfil{% endblock %}
 {% block content %}
 <div class="layout-perfil">
   <div class="panel panel-grande texto-centro">
@@ -21,12 +21,12 @@
         <tbody>
         {% for h in historial %}
           <tr>
-            <td>{{ h.pelicula }}</td><td>{{ h.cine }}</td>
-            <td>{{ h.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
-            <td>${{ h.total }}</td>
-            <td>{% if h.estado == 'Utilizada' %}<span class="insignia insignia-verde">{{ h.estado }}</span>{% else %}<span class="insignia insignia-roja">{{ h.estado }}</span>{% endif %}</td>
+            <td>{{ h.funcion.pelicula }}</td><td>{{ h.funcion.local }}</td>
+            <td>{{ h.funcion.fecha }} {{ h.funcion.hora_inicio }}</td>
+            <td>${{ h.total|int }}</td>
+            <td>{% if h.estado == 'usada' or h.estado == 'pagada' %}<span class="insignia insignia-verde">{{ h.estado|capitalize }}</span>{% else %}<span class="insignia insignia-roja">{{ h.estado|capitalize }}</span>{% endif %}</td>
             <td>
-              {% if h.estado == 'Activa' %}
+              {% if h.estado == 'pagada' %}
                 <form method="POST" action="#" data-confirmar="¿Cancelar esta compra?">
                   <button class="boton boton-peligro boton-chico" type="submit">Cancelar</button>
                 </form>
