@@ -5,6 +5,7 @@ from flask import Blueprint, abort, flash, redirect, render_template, request, s
 from services.api import API_URL, encabezado_auth
 from services import mock_data
 from services.auth import revisar_login
+from services.api import llamar_api
 
 publico_bp = Blueprint("publico", __name__)
 
@@ -50,40 +51,42 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        try:
-            # 1. Petición al Backend (JWT)
-            respuesta = requests.post(
-                f"{current_app.config['API_URL']}/sesiones", 
-                json={"email": email, "password": password}
-            )
+        # Usamos el wrapper de tu compañero
+        respuesta = llamar_api(
+            metodo="POST", 
+            endpoint="/sesiones", 
+            datos={"email": email, "password": password}
+        )
 
-            if respuesta.status_code == 200:
-                datos = respuesta.json()
-                
-                # 2. Guardamos los datos en la sesión del Frontend
-                session['token'] = datos['token']
-                session['usuario_nombre'] = datos['usuario']['nombre']
-                session['usuario_id'] = datos['usuario']['id']
-                session['rol'] = datos['usuario']['rol'] # Guarda 'administrador' o 'cliente'
-
-                # 3. Redirigimos según el rol
-                next_page = request.args.get('next')
-                if next_page:
-                    return redirect(next_page)
-
-                if session['rol'] == 'administrador':
-                    return redirect(url_for('admin.dashboard')) 
-                
-                return redirect(url_for('publico.cartelera'))
-                
-            else:
-                # Si el back devolvió error (400, 401, 403)
-                error_data = respuesta.json()
-                mensaje = error_data.get('errors', [{}])[0].get('description', 'Credenciales inválidas')
-                flash(mensaje, 'error')
-
-        except requests.exceptions.RequestException:
+        # Si el servidor no responde (timeout o apagado)
+        if respuesta is None:
             flash("Error de conexión con el servidor", "error")
+            return render_template('login.html')
+
+        if respuesta.status_code == 200:
+            datos = respuesta.json()
+            
+            # Guardamos en la sesión del Front
+            session['token'] = datos['token']
+            session['usuario_nombre'] = datos['usuario']['nombre']
+            session['usuario_id'] = datos['usuario']['id']
+            session['rol'] = datos['usuario']['rol'] 
+
+            # Redirigimos según el rol
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
+
+            if session['rol'] == 'administrador':
+                return redirect(url_for('admin.dashboard')) 
+            
+            return redirect(url_for('publico.cartelera'))
+            
+        else:
+            # Leemos el JSON de error del backend
+            error_data = respuesta.json()
+            mensaje = error_data.get('errors', [{}])[0].get('description', 'Credenciales inválidas')
+            flash(mensaje, 'error')
 
     return render_template('login.html')
 
@@ -158,7 +161,6 @@ def editar_perfil():
 @publico_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
-        # 1. Capturamos los datos del formulario HTML
         nombre = request.form.get('nombre')
         apellido = request.form.get('apellido')
         email = request.form.get('email')
@@ -166,13 +168,13 @@ def registro():
         password = request.form.get('password')
         confirmar_password = request.form.get('confirmar_password')
 
-        # 2. Validación rápida en el frontend: ¿Las contraseñas coinciden?
+        # Validación local en el front
         if password != confirmar_password:
-            flash("Las contraseñas no coinciden. Intentalo de nuevo.", "error")
+            flash("Las contraseñas no coinciden.", "error")
             return redirect(url_for('publico.registro'))
 
-        # 3. Preparamos el JSON para el backend
-        datos = {
+        # Preparamos el JSON
+        datos_registro = {
             "nombre": nombre,
             "apellido": apellido,
             "email": email,
@@ -180,25 +182,23 @@ def registro():
             "password": password
         }
 
-        try:
-            # 4. Hacemos la petición POST al endpoint de usuarios del backend
-            respuesta = requests.post(
-                f"{current_app.config['API_URL']}/usuarios", 
-                json=datos
-            )
+        # Usamos el wrapper de tu compañero
+        respuesta = llamar_api(
+            metodo="POST", 
+            endpoint="/usuarios", 
+            datos=datos_registro
+        )
 
-            if respuesta.status_code == 201:
-                # Si el backend responde 201 Created, fue un éxito
-                flash("¡Registro exitoso! Ya podés iniciar sesión.", "exito")
-                return redirect(url_for('publico.login'))
-            else:
-                # Si hubo un error (400 por validación, 409 por duplicado)
-                error_data = respuesta.json()
-                mensaje = error_data.get('errors', [{}])[0].get('description', 'Error al registrar el usuario')
-                flash(mensaje, 'error')
+        if respuesta is None:
+            flash("Error de conexión con el servidor.", "error")
+            return render_template('registro.html')
 
-        except requests.exceptions.RequestException:
-            flash("Error de conexión con el servidor. Intentá más tarde.", "error")
+        if respuesta.status_code == 201:
+            flash("¡Registro exitoso! Ya podés iniciar sesión.", "exito")
+            return redirect(url_for('publico.login'))
+        else:
+            error_data = respuesta.json()
+            mensaje = error_data.get('errors', [{}])[0].get('description', 'Error al registrar')
+            flash(mensaje, 'error')
 
-    # Si es GET, muestra el template de registro
     return render_template('registro.html')
