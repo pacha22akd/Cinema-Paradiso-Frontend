@@ -102,20 +102,42 @@ def editar_perfil():
         return respuesta
 
     if request.method == "POST":
-        nombre = request.form.get("nombre", "").strip()
-        email = request.form.get("email", "").strip()
-        contraseña = request.form.get("contraseña", "").strip()
-        if not nombre or "@" not in email:
-            flash("Ingresá un nombre y un correo electrónico válido.", "danger")
-            return render_template("editar_perfil.html", usuario=session["usuario"])
+        datos = {
+            "nombre": request.form.get("nombre", ""),
+            "apellido": request.form.get("apellido", ""),
+            "telefono": request.form.get("telefono", ""),
+            "email": request.form.get("email", ""),
+        }
 
-        usuario = dict(session["usuario"])
-        usuario.update({"nombre": nombre, "email": email, "contraseña": contraseña})
-        session["usuario"] = usuario
-        flash("Tus datos se actualizaron correctamente.", "success")
-        return redirect(url_for("publico.perfil"))
+        # La contraseña es opcional: si queda vacía, no se cambia
+        password = request.form.get("password", "")
+        if password != "":
+            datos["password"] = password
+            
+        respuesta_api = requests.patch(f"{API_URL}/usuarios/perfil", json=datos, headers=encabezado_auth())
 
-    return render_template("editar_perfil.html", usuario=session["usuario"])
+        if respuesta_api.status_code == 200:
+            actualizado = respuesta_api.json()
+            # Se actualiza la sesión para que la barra de arriba muestre el nombre nuevo
+            usuario = dict(session["usuario"])
+            usuario["nombre"] = actualizado["nombre"]
+            usuario["email"] = actualizado["email"]
+            session["usuario"] = usuario
+            flash("Tus datos se actualizaron correctamente.", "success")
+            return redirect(url_for("publico.perfil"))
+
+        # El backend explica el error (email repetido, formato inválido, etc.)
+        error = respuesta_api.json()["errors"][0]["description"]
+        flash(error, "danger")
+        return render_template("editar_perfil.html", usuario=datos)
+
+    # GET: se traen los datos actuales para completar el formulario
+    respuesta_api = requests.get(f"{API_URL}/usuarios/perfil", headers=encabezado_auth())
+    if respuesta_api.status_code != 200:
+        flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
+        return redirect(url_for("publico.login"))
+
+    return render_template("editar_perfil.html", usuario=respuesta_api.json()["datos_personales"])
 
 @publico_bp.route("/registro")
 def registro():
