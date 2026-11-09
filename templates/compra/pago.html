@@ -27,7 +27,7 @@
         <input type="password" id="cvv" name="cvv" placeholder="123" inputmode="numeric" maxlength="4" autocomplete="cc-csc" required>
       </div>
     </div>
-    <p class="chico tenue" style="margin:1rem 0 0">Te enviaremos la factura y el QR de ingreso a {{ session.usuario.email }}.</p>
+    <p class="chico tenue" style="margin:1rem 0 0">Te enviaremos la factura y el QR de ingreso a {{ session.usuario_email }}.</p>
   </div>
   <div class="acciones">
     <a class="boton boton-claro" href="{{ url_for('compra.confirmacion', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id, **resumen.parametros) }}">← Volver</a>
