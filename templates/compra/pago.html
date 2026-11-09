@@ -3,10 +3,10 @@
 {% block title %}Pago{% endblock %}
 {% block paso %}
 <h2>Pago</h2>
-<form method="POST" action="{{ url_for('compra.pago', funcion_id=funcion.id) }}" autocomplete="off">
+<form method="POST" action="{{ url_for('compra.pago', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id) }}" autocomplete="off">
   {% include 'components/estado_compra.html' %}
   <div class="panel panel-grande">
-    <p>Total a pagar: <strong style="font-size:1.6rem">${{ resumen.total }}</strong></p>
+    <p>Total a pagar: <strong style="font-size:1.6rem">{{ resumen.total|precio }}</strong></p>
     <hr>
     <h3>Datos de la tarjeta</h3>
     <div class="campo">
@@ -30,7 +30,7 @@
     <p class="chico tenue" style="margin:1rem 0 0">Te enviaremos la factura y el QR de ingreso a {{ session.usuario.email }}.</p>
   </div>
   <div class="acciones">
-    <a class="boton boton-claro" href="{{ url_for('compra.confirmacion', funcion_id=funcion.id) }}">← Volver</a>
+    <a class="boton boton-claro" href="{{ url_for('compra.confirmacion', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id, **resumen.parametros) }}">← Volver</a>
     <button class="boton boton-rojo" type="submit">Confirmar compra</button>
   </div>
 </form>

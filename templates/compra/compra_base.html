@@ -2,7 +2,7 @@
 {% block content %}
 {% set pasos = ['Horario', 'Entradas', 'Butacas', 'Comida', 'Confirmación', 'Pago'] %}
 <div class="stepper">
-  {# `paso` lo define cada template hijo: 0 = Horario, 1 = Entradas, etc. #}
+  {# `paso` lo define cada template hijo #}
   {% for nombre in pasos %}
     {% if loop.index0 == paso %}
       <div class="paso activo">{{ loop.index }}. {{ nombre }}</div>

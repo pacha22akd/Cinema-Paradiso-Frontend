@@ -4,7 +4,27 @@
 <div class="centrado">
   <div class="tilde-grande">✓</div>
   <h1>¡Compra confirmada!</h1>
-  <p class="tenue">Te enviamos la factura y el QR de ingreso a {{ session.usuario.email }}.</p>
+  {% if mail_enviado %}
+    <p class="tenue">Te enviamos la factura y el QR de ingreso de cada entrada a {{ session.usuario.email }}.</p>
+  {% else %}
+    {# El pago salió bien pero el backend no pudo mandar el mail #}
+    <p class="tenue">Tu compra se pagó correctamente, pero no pudimos enviar el mail con la factura y los QR.
+      Guardá tu código de compra: <strong>{{ compra.codigo }}</strong>.</p>
+  {% endif %}
+</div>
+<div class="panel panel-grande" style="max-width:36rem;margin:0 auto 1.5rem">
+  <dl class="datos">
+    <dt>Compra</dt><dd>{{ compra.codigo }}</dd>
+    <dt>Factura</dt><dd>{{ compra.numero_factura }}</dd>
+    <dt>Película</dt><dd>{{ compra.pelicula }}</dd>
+    <dt>Función</dt><dd>{{ compra.inicio.strftime('%d/%m/%Y %H:%M') }}</dd>
+    <dt>Cine / Sala</dt><dd>{{ compra.local }} · {{ compra.sala }}</dd>
+    <dt>Butacas</dt><dd>{% for e in compra.entradas %}{{ e.butaca }}{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+    <dt>Servicios</dt><dd>{% if compra.servicios %}{% for s in compra.servicios %}{{ s.cantidad }} {{ s.servicio }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}Ninguno{% endif %}</dd>
+    <dt>Total</dt><dd><strong>{{ compra.total|precio }}</strong></dd>
+  </dl>
+</div>
+<div class="texto-centro">
   <a class="boton boton-rojo" href="{{ url_for('publico.perfil') }}">Ver mis entradas</a>
 </div>
 {% endblock %}

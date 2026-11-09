@@ -56,7 +56,7 @@
     });
   }
 
-  //Butacas: no se pueden elegir más butacas que entradas, y se cuenta cuántas van
+  //Butacas: hay que elegir exactamente tantas como entradas (data-max-butacas), y se cuenta cuántas van
   function iniciarButacas() {
     const formulario = document.querySelector("[data-max-butacas]");
     if (!formulario) {
@@ -73,17 +73,13 @@
 
     function actualizar() {
       const elegidas = contarElegidas();
-      if (maximo > 0) {
-        contador.textContent = "Elegidas: " + elegidas + " de " + maximo;
-        continuar.disabled = elegidas !== maximo;
-      } else {
-        contador.textContent = "Elegidas: " + elegidas;
-      }
+      contador.textContent = "Elegidas: " + elegidas + " de " + maximo;
+      continuar.disabled = elegidas !== maximo;  // hasta completar todas las butacas no se puede seguir
     }
 
     checkboxes.forEach(function (checkbox) {
       checkbox.addEventListener("change", function () {
-        if (maximo > 0 && contarElegidas() > maximo) {
+        if (contarElegidas() > maximo) {
           checkbox.checked = false;  // se pasó del máximo: desmarcamos la última
         }
         actualizar();
@@ -98,16 +94,16 @@
     const formularios = document.querySelectorAll("[data-total]");
     formularios.forEach(function (formulario) {
       const salida = formulario.querySelector("[data-total-salida]");
-      const base = parseInt(formulario.dataset.total, 10) || 0;
+      const base = parseFloat(formulario.dataset.total) || 0;
       const campos = formulario.querySelectorAll("input[data-precio]");
 
       function calcular() {
         let total = base;
         campos.forEach(function (campo) {
           const cantidad = parseInt(campo.value, 10) || 0;
-          total = total + cantidad * parseInt(campo.dataset.precio, 10);
+          total = total + cantidad * parseFloat(campo.dataset.precio);
         });
-        salida.textContent = "$" + total;
+        salida.textContent = "$" + total.toLocaleString("es-AR");
       }
 
       campos.forEach(function (campo) {
