@@ -3,15 +3,15 @@
 {% block title %}Entradas{% endblock %}
 {% block paso %}
 <h2>¿Cuántas entradas?</h2>
-<form method="GET" action="{{ url_for('compra.butacas', funcion_id=funcion.id) }}" data-total="0">
+<form method="GET" action="{{ url_for('compra.butacas', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id) }}" data-total="0">
+  {% set omitir = ['cantidad', 'butacas'] %}
+  {% include 'components/estado_compra.html' %}
   <div class="panel">
-    {% for t in tipos %}
-      <div class="fila-linea">
-        <div><strong>{{ t.nombre }}</strong><div class="chico tenue">${{ t.precio }}</div></div>
-        <input class="cantidad" type="number" name="{{ t.clave }}" min="0" max="8" data-precio="{{ t.precio }}"
-               value="{% if t.clave == 'general' %}1{% else %}0{% endif %}" aria-label="Cantidad {{ t.nombre }}">
-      </div>
-    {% endfor %}
+    <div class="fila-linea">
+      <div><strong>Entrada</strong><div class="chico tenue">{{ funcion.precio_base|precio }} cada una · hasta {{ resumen.maximo_entradas }}</div></div>
+      <input class="cantidad" type="number" name="cantidad" min="1" max="{{ resumen.maximo_entradas }}"
+             data-precio="{{ funcion.precio_base }}" value="{{ resumen.cantidad_entradas or 1 }}" required aria-label="Cantidad de entradas">
+    </div>
   </div>
   <p class="total-vivo">Total: <strong data-total-salida>$0</strong></p>
   <div class="acciones">
