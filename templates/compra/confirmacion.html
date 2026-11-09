@@ -6,19 +6,20 @@
 <div class="panel panel-grande">
   <dl class="datos">
     <dt>Película</dt><dd>{{ pelicula.titulo }}</dd>
-    <dt>Función</dt><dd>{{ funcion.inicio.strftime('%d/%m/%Y %H:%M') }} · {{ funcion.formato }}</dd>
-    <dt>Cine / Sala</dt><dd>{{ funcion.cine.nombre }} · {{ funcion.sala }}</dd>
-    <dt>Butacas</dt><dd>{% if resumen.butacas %}{{ resumen.butacas|join(', ') }}{% else %}Sin seleccionar{% endif %}</dd>
-    <dt>Entradas</dt><dd>{% for e in resumen.entradas %}{{ e.cantidad }} {{ e.nombre }}{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+    <dt>Función</dt><dd>{{ funcion.inicio.strftime('%d/%m/%Y %H:%M') }} · {{ funcion.sala_tipo }}</dd>
+    <dt>Cine / Sala</dt><dd>{{ funcion.local_nombre }} · {{ funcion.sala_nombre }}</dd>
+    <dt>Butacas</dt><dd>{% for b in resumen.butacas %}{{ b.codigo }}{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+    <dt>Entradas</dt><dd>{{ resumen.cantidad_entradas }} × {{ funcion.precio_base|precio }}</dd>
     <dt>Servicios</dt><dd>{% if resumen.servicios %}{% for s in resumen.servicios %}{{ s.cantidad }} {{ s.nombre }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}Ninguno{% endif %}</dd>
+    <dt>Total</dt><dd><strong>{{ resumen.total|precio }}</strong></dd>
   </dl>
   <hr>
   <p class="chico tenue" style="margin:0">Podés cancelar hasta 2 horas antes de la función. Te enviaremos la factura y el QR de ingreso por mail.</p>
 </div>
-<form method="GET" action="{{ url_for('compra.pago', funcion_id=funcion.id) }}">
+<form method="GET" action="{{ url_for('compra.pago', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id) }}">
   {% include 'components/estado_compra.html' %}
   <div class="acciones">
-    <a class="boton boton-claro" href="{{ url_for('compra.comida', funcion_id=funcion.id) }}">← Volver</a>
+    <a class="boton boton-claro" href="{{ url_for('compra.comida', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id, **resumen.parametros) }}">← Volver</a>
     <button class="boton boton-rojo" type="submit">Continuar →</button>
   </div>
 </form>
