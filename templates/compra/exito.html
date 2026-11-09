@@ -5,7 +5,7 @@
   <div class="tilde-grande">✓</div>
   <h1>¡Compra confirmada!</h1>
   {% if mail_enviado %}
-    <p class="tenue">Te enviamos la factura y el QR de ingreso de cada entrada a {{ session.usuario.email }}.</p>
+    <p class="tenue">Te enviamos la factura y el QR de ingreso de cada entrada a {{ session.usuario_email }}.</p>
   {% else %}
     {# El pago salió bien pero el backend no pudo mandar el mail #}
     <p class="tenue">Tu compra se pagó correctamente, pero no pudimos enviar el mail con la factura y los QR.
