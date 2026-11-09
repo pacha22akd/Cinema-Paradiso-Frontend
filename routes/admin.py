@@ -35,32 +35,28 @@ def baja_servicio(servicio_id):
 @admin_bp.route("/backoffice")
 def dashboard():
     try:
-        
-        res_funciones = llamar_api("GET", "/admin/estadisticas/ocupacion/funciones")
-        res_peliculas = llamar_api("GET", "/admin/estadisticas/ocupacion/peliculas")
-        res_franjas = llamar_api("GET", "/admin/estadisticas/franjas_horarias")
-        res_generos = llamar_api("GET", "/admin/estadisticas/ventas_genero")
-        res_cancelaciones = llamar_api("GET", "/admin/estadisticas/cancelaciones")
+        # 1. Llamamos a la API y DESEMPAQUETAMOS la tupla (datos, status_code)
+        funciones_json, status_f = llamar_api("GET", "/admin/estadisticas/ocupacion/funciones")
+        peliculas_json, status_p = llamar_api("GET", "/admin/estadisticas/ocupacion/peliculas")
+        franjas_json, status_fr = llamar_api("GET", "/admin/estadisticas/franjas_horarias")
+        generos_json, status_g = llamar_api("GET", "/admin/estadisticas/ventas_genero")
+        cancelaciones_json, status_c = llamar_api("GET", "/admin/estadisticas/cancelaciones")
 
-        # Chequeo de seguridad por si el backend está apagado
-        if not all([res_funciones, res_peliculas, res_franjas, res_generos, res_cancelaciones]):
-            raise Exception("El servidor Backend no responde")
+        # 2. Si la API devolvió error (status != 200), forzamos lista vacía
+        if status_f != 200: funciones_json = []
+        if status_p != 200: peliculas_json = []
+        if status_fr != 200: franjas_json = []
+        if status_g != 200: generos_json = []
+        if status_c != 200: cancelaciones_json = []
 
-        # 2. Extraemos el JSON
-        funciones_json = res_funciones.json() if res_funciones.status_code == 200 else []
-        peliculas_json = res_peliculas.json() if res_peliculas.status_code == 200 else []
-        franjas_json = res_franjas.json() if res_franjas.status_code == 200 else []
-        generos_json = res_generos.json() if res_generos.status_code == 200 else []
-        cancelaciones_json = res_cancelaciones.json() if res_cancelaciones.status_code == 200 else []
-
-        
+        # 3. Transformamos los datos (la variable ya es un diccionario/lista de Python, no hace falta .json())
         datos_funciones = []
         if isinstance(funciones_json, list):
             for f in funciones_json:
                 hora = f.get('fecha_hora_inicio', '')[11:16] if f.get('fecha_hora_inicio') else ""
                 etiqueta = f"{f.get('pelicula', 'Sin nombre')} {hora}"
                 datos_funciones.append([etiqueta, float(f.get('porcentaje_ocupacion', 0))])
-                
+
         datos_peliculas = []
         if isinstance(peliculas_json, list):
             datos_peliculas = [[p.get('pelicula', 'Sin nombre'), float(p.get('porcentaje_ocupacion', 0))] for p in peliculas_json]
@@ -73,16 +69,17 @@ def dashboard():
         if isinstance(generos_json, list):
             datos_generos = [[g.get('genero', 'Otro'), float(g.get('cantidad_entradas', 0))] for g in generos_json]
 
+        # 4. Cálculo de cancelaciones
         total_cancelaciones = 0
         if isinstance(cancelaciones_json, list):
             for item in cancelaciones_json:
                 if isinstance(item, dict):
                     total_cancelaciones += item.get('cantidad', 0)
 
-        # 4. Armamos el diccionario "est" final
+        # 5. Armamos el diccionario "est" final
         est = {
             "kpis": [
-                {"nombre": "Entradas vendidas", "valor": "1.284"}, 
+                {"nombre": "Entradas vendidas", "valor": "1.284"},
                 {"nombre": "Ingresos", "valor": "$8,4 M"},
                 {"nombre": "Ocupación media", "valor": "74 %"},
                 {"nombre": "Cancelaciones", "valor": str(total_cancelaciones)}
@@ -91,13 +88,13 @@ def dashboard():
             "ocupacion_pelicula": datos_peliculas,
             "franjas": datos_franjas,
             "ventas_genero": datos_generos,
-            "cancelaciones": {"total": total_cancelaciones, "porcentaje": "4.2"} 
+            "cancelaciones": {"total": total_cancelaciones, "porcentaje": "4.2"}
         }
 
     except Exception as e:
         print(f"Error general conectando con el Backend: {e}")
         est = {
-            "kpis": [], "ocupacion_funcion": [], "ocupacion_pelicula": [], 
+            "kpis": [], "ocupacion_funcion": [], "ocupacion_pelicula": [],
             "franjas": [], "ventas_genero": [], "cancelaciones": {"total": 0, "porcentaje": 0}
         }
 
