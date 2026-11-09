@@ -122,6 +122,23 @@ def perfil():
 
     return render_template('perfil.html', perfil=respuesta_perfil.json(), historial=historial, vistas=vistas)
 
+@publico_bp.route("/perfil/compras/<int:compra_id>/reenviar_mail", methods=["POST"])
+def reenviar_mail(compra_id):
+    redireccion = revisar_login()
+    if redireccion:
+        return redireccion
+
+    respuesta = llamar_api("POST", f"/compras/{compra_id}/reenviar_mail")
+
+    if respuesta.status_code == 200:
+        flash("Te reenviamos el mail con tus entradas.", "success")
+    else:
+        # El backend explica por qué no se pudo (no es tuya, no está pagada, falló el envío)
+        error = respuesta.json()["errors"][0]["description"]
+        flash(error, "danger")
+
+    return redirect(url_for("publico.perfil"))
+
 @publico_bp.route("/perfil/editar", methods=["GET", "POST"])
 def editar_perfil():
     respuesta = revisar_login()
