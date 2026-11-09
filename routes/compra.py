@@ -1,13 +1,9 @@
 # Flujo de compra: horario -> entradas -> butacas -> comida -> confirmación -> pago -> éxito.
-# Este archivo tiene TODO lo de la compra: los pedidos al backend (arriba) y las rutas del flujo (abajo).
-# La parte genérica de hablar con el backend (llamar_api, ErrorApi) está en services/api.py.
-# Lo que va eligiendo el usuario viaja en la URL (?cantidad=2&butacas=3&butacas=4&srv_2=1) de un
-# paso al siguiente; recién en el último paso (pago) se le pide al backend que cree y cobre la compra.
 from datetime import datetime
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
-from services.api import ErrorApi, llamar_api
+from services.api import llamar_api
 from services.auth import revisar_login
 
 compra_bp = Blueprint("compra", __name__)
@@ -91,9 +87,7 @@ def get_compra(compra_id):
     return compra, estado
 
 
-# ======================================================================================
-#  2) RUTAS DEL FLUJO DE COMPRA
-# ======================================================================================
+# RUTAS DEL FLUJO DE COMPRA
 
 @compra_bp.before_request
 def proteger():
@@ -101,37 +95,27 @@ def proteger():
     return revisar_login()
 
 
-@compra_bp.errorhandler(ErrorApi)
-def manejar_error_api(error):
-    """Atrapa cualquier ErrorApi lanzado en las rutas de compra, así no hay que
-    escribir try/except en cada una."""
-    if error.status == 401:
+def manejar_error(mensaje, estado):
+    """Devuelve la respuesta que corresponde cuando el backend contestó con un error"""
+    if estado == 401:
         # el token venció o no existe: hay que volver a loguearse
         session.clear()
         flash("Tu sesión expiró. Iniciá sesión nuevamente.", "warning")
         return redirect(url_for("publico.login"))
-    if error.status == 404:
+    if estado == 404:
         return render_template("errors/404.html"), 404
-    flash(error.mensaje, "danger")
+    flash(mensaje, "danger")
     return redirect(url_for("publico.cartelera"))
 
 
 @compra_bp.app_template_filter("precio")
 def formato_precio(valor):
     """Filtro para los templates: {{ 8500.0|precio }} -> $8.500 (con punto de miles)."""
-    texto = "{:,.2f}".format(valor)                                       # 8,500.00
-    texto = texto.replace(",", "X").replace(".", ",").replace("X", ".")   # 8.500,00
+    texto = "{:,.2f}".format(valor)                                       
+    texto = texto.replace(",", "X").replace(".", ",").replace("X", ".")   
     if texto.endswith(",00"):
         texto = texto[:-3]
     return "$" + texto
-
-
-def buscar_pelicula(pelicula_id):
-    """Trae la película del backend. Si no está en cartelera lanza un ErrorApi 404."""
-    pelicula = get_pelicula(pelicula_id)
-    if pelicula is None:
-        raise ErrorApi("La película no está en cartelera.", 404)
-    return pelicula
 
 
 def agrupar_por_local(funciones):
@@ -158,21 +142,16 @@ def armar_resumen(funcion, butacas_sala, servicios, datos):
     que venga en la URL."""
     maximo_entradas = 8
 
-    # Entradas: el backend no tiene tipos de entrada (todas valen funcion["precio_base"]),
-    # así que acá solo se elige CUÁNTAS. Si viene un valor raro, queda en 0 (= todavía no eligió).
     cantidad = datos.get("cantidad", 0, type=int)
     if cantidad < 1 or cantidad > maximo_entradas:
         cantidad = 0
 
-    # Butacas: solo valen las que existen en la sala y siguen disponibles.
-    # Recorremos las de la sala (y no las de la URL) para ignorar ids inventados o repetidos.
     elegidas = datos.getlist("butacas")
     butacas = []
     for butaca in butacas_sala:
         if str(butaca["butaca_id"]) in elegidas and butaca["estado_disponibilidad"] == "disponible":
             butacas.append({"id": butaca["butaca_id"], "codigo": butaca["fila"] + str(butaca["numero"])})
 
-    # Servicios: en la URL vienen como srv_<id>=<cantidad>
     pedidos = []
     cantidades = {}
     for servicio in servicios:
@@ -187,7 +166,6 @@ def armar_resumen(funcion, butacas_sala, servicios, datos):
     for pedido in pedidos:
         total = total + pedido["subtotal"]
 
-    # Lo que hay que reenviar al paso siguiente (o al volver al anterior) para no perder lo elegido
     parametros = {}
     if cantidad:
         parametros["cantidad"] = [cantidad]
@@ -204,22 +182,29 @@ def armar_resumen(funcion, butacas_sala, servicios, datos):
 
 
 def cargar_compra(pelicula_id, funcion_id):
-    """Pide al backend todo lo que necesita un paso de la compra y lo devuelve en un diccionario,
-    listo para pasárselo a render_template(..., **contexto)."""
-    pelicula = buscar_pelicula(pelicula_id)
-    funcion = get_funcion(pelicula_id, funcion_id)
-    if funcion is None:
-        raise ErrorApi("La función no existe o ya no está disponible.", 404)
-    butacas_sala = get_butacas(funcion_id)
-    servicios = get_servicios()
+    pelicula, estado = get_pelicula(pelicula_id)
+    if estado != 200:
+        return None, manejar_error(pelicula, estado)
+
+    funcion, estado = get_funcion(pelicula_id, funcion_id)
+    if estado != 200:
+        return None, manejar_error(funcion, estado)
+
+    butacas_sala, estado = get_butacas(funcion_id)
+    if estado != 200:
+        return None, manejar_error(butacas_sala, estado)
+
+    servicios, estado = get_servicios()
+    if estado != 200:
+        return None, manejar_error(servicios, estado)
+
     resumen = armar_resumen(funcion, butacas_sala, servicios, request.values)
-    return {"pelicula": pelicula, "funcion": funcion, "butacas_sala": butacas_sala,
-            "servicios": servicios, "resumen": resumen}
+    contexto = {"pelicula": pelicula, "funcion": funcion, "butacas_sala": butacas_sala,
+                "servicios": servicios, "resumen": resumen}
+    return contexto, None
 
 
 def revisar_cantidad(contexto):
-    """Igual que revisar_login: devuelve None si ya eligió cuántas entradas quiere (1 a 8);
-    si no, lo manda de vuelta al paso de entradas."""
     if contexto["resumen"]["cantidad_entradas"] >= 1:
         return None
     flash("Elegí cuántas entradas querés para continuar.", "warning")
@@ -244,21 +229,31 @@ def revisar_butacas(contexto):
 
 @compra_bp.route("/horario/<int:pelicula_id>")
 def horario(pelicula_id):
-    pelicula = buscar_pelicula(pelicula_id)
-    funciones = get_funciones(pelicula_id)
+    pelicula, estado = get_pelicula(pelicula_id)
+    if estado != 200:
+        return manejar_error(pelicula, estado)
+
+    funciones, estado = get_funciones(pelicula_id)
+    if estado != 200:
+        return manejar_error(funciones, estado)
+
     return render_template("compra/horario.html", pelicula=pelicula, funcion=None, resumen=None,
                            locales=agrupar_por_local(funciones))
 
 
 @compra_bp.route("/<int:pelicula_id>/<int:funcion_id>/entradas")
 def entradas(pelicula_id, funcion_id):
-    contexto = cargar_compra(pelicula_id, funcion_id)
+    contexto, error = cargar_compra(pelicula_id, funcion_id)
+    if error is not None:
+        return error
     return render_template("compra/entradas.html", **contexto)
 
 
 @compra_bp.route("/<int:pelicula_id>/<int:funcion_id>/butacas")
 def butacas(pelicula_id, funcion_id):
-    contexto = cargar_compra(pelicula_id, funcion_id)
+    contexto, error = cargar_compra(pelicula_id, funcion_id)
+    if error is not None:
+        return error
     respuesta = revisar_cantidad(contexto)
     if respuesta is not None:
         return respuesta
@@ -267,7 +262,9 @@ def butacas(pelicula_id, funcion_id):
 
 @compra_bp.route("/<int:pelicula_id>/<int:funcion_id>/comida")
 def comida(pelicula_id, funcion_id):
-    contexto = cargar_compra(pelicula_id, funcion_id)
+    contexto, error = cargar_compra(pelicula_id, funcion_id)
+    if error is not None:
+        return error
     respuesta = revisar_butacas(contexto)
     if respuesta is not None:
         return respuesta
@@ -276,7 +273,9 @@ def comida(pelicula_id, funcion_id):
 
 @compra_bp.route("/<int:pelicula_id>/<int:funcion_id>/confirmacion")
 def confirmacion(pelicula_id, funcion_id):
-    contexto = cargar_compra(pelicula_id, funcion_id)
+    contexto, error = cargar_compra(pelicula_id, funcion_id)
+    if error is not None:
+        return error
     respuesta = revisar_butacas(contexto)
     if respuesta is not None:
         return respuesta
@@ -321,45 +320,46 @@ def validar_tarjeta(form):
     return errores
 
 
-def deshacer_compra(compra_id):
-    """Si algo falló después de crear la compra, la cancelamos para que las butacas
-    no queden reservadas sin que nadie las haya pagado."""
-    try:
+def fallar_compra(compra_id, mensaje, estado):
+    """Algo falló después de crear la compra. Devuelve lo mismo que registrar_compra:
+    (None, False, (mensaje, estado))."""
+    if estado == 503:
+        mensaje = ("No pudimos confirmar si tu pago se completó. Revisá tus entradas en tu "
+                   "perfil antes de volver a intentar.")
+    else:
         cancelar_compra(compra_id, "No se pudo completar el pago")
-    except ErrorApi:
-        pass  # si tampoco se pudo cancelar no hay nada más que hacer; el error original es el importante
+    return None, False, (mensaje, estado)
 
 
 def registrar_compra(funcion, resumen):
-    """Le pide al backend, en orden: crear la compra (reserva las butacas), agregarle los
-    servicios y pagarla (el backend manda el mail con el QR). Devuelve (compra_id, email_enviado).
-    Si algo falla lanza ErrorApi."""
     butaca_ids = []
     for butaca in resumen["butacas"]:
         butaca_ids.append(butaca["id"])
 
-    compra = crear_compra(funcion["funcion_id"], butaca_ids)
+    compra, estado = crear_compra(funcion["funcion_id"], butaca_ids)
+    if estado >= 400:
+        return None, False, (compra, estado)
     compra_id = compra["compra_id"]
 
-    try:
-        for servicio in resumen["servicios"]:
-            agregar_servicio(compra_id, servicio["id"], servicio["cantidad"])
-        pago = pagar_compra(compra_id)
-    except ErrorApi as error:
-        if error.status == 503:
-            # No se pudo hablar con el backend: no sabemos si el pago llegó a hacerse. Cancelar ahí
-            # podría anular una compra ya pagada, así que no tocamos nada y avisamos.
-            raise ErrorApi("No pudimos confirmar si tu pago se completó. Revisá tus entradas en tu "
-                           "perfil antes de volver a intentar.", 503)
-        deshacer_compra(compra_id)
-        raise
+    for servicio in resumen["servicios"]:
+        respuesta, estado = agregar_servicio(compra_id, servicio["id"], servicio["cantidad"])
+        if estado >= 400:
+            return fallar_compra(compra_id, respuesta, estado)
 
-    return compra_id, pago.get("email_enviado", False)
+    pago, estado = pagar_compra(compra_id)
+    if estado >= 400:
+        return fallar_compra(compra_id, pago, estado)
+
+    if pago is None:  # el backend pudo contestar 204 sin cuerpo
+        pago = {}
+    return compra_id, pago.get("email_enviado", False), None
 
 
 @compra_bp.route("/<int:pelicula_id>/<int:funcion_id>/pago", methods=["GET", "POST"])
 def pago(pelicula_id, funcion_id):
-    contexto = cargar_compra(pelicula_id, funcion_id)
+    contexto, error = cargar_compra(pelicula_id, funcion_id)
+    if error is not None:
+        return error
     respuesta = revisar_butacas(contexto)
     if respuesta is not None:
         return respuesta
@@ -369,22 +369,22 @@ def pago(pelicula_id, funcion_id):
     if request.method == "POST":
         errores = validar_tarjeta(request.form)
         if not errores:
-            try:
-                compra_id, email_enviado = registrar_compra(contexto["funcion"], contexto["resumen"])
-            except ErrorApi as error:
-                if error.status != 409:
-                    raise  # lo atrapa manejar_error_api
+            compra_id, email_enviado, error = registrar_compra(contexto["funcion"], contexto["resumen"])
+            if error is not None:
+                mensaje, estado = error
+                if estado != 409:
+                    return manejar_error(mensaje, estado)
                 # 409 = conflicto: alguien se quedó con una butaca, la función ya empezó, etc.
-                flash(error.mensaje, "danger")
+                flash(mensaje, "danger")
                 return redirect(url_for("compra.butacas", pelicula_id=pelicula_id, funcion_id=funcion_id,
                                         cantidad=contexto["resumen"]["cantidad_entradas"]))
-            # mail=0 solo se agrega si el mail con el QR no se pudo enviar (para avisarlo en la página)
+            # mail=0 solo se agrega si el mail con el QR no se pudo enviar
             if email_enviado:
                 return redirect(url_for("compra.exito", compra_id=compra_id))
             return redirect(url_for("compra.exito", compra_id=compra_id, mail=0))
 
-        for error in errores:
-            flash(error, "danger")
+        for mensaje in errores:
+            flash(mensaje, "danger")
         datos = {
             "titular": request.form.get("titular", ""),
             "numero": request.form.get("numero", ""),
@@ -396,6 +396,8 @@ def pago(pelicula_id, funcion_id):
 
 @compra_bp.route("/exito/<int:compra_id>")
 def exito(compra_id):
-    compra = get_compra(compra_id)
+    compra, estado = get_compra(compra_id)
+    if estado != 200:
+        return manejar_error(compra, estado)
     mail_enviado = request.args.get("mail") != "0"
     return render_template("compra/exito.html", compra=compra, mail_enviado=mail_enviado)
