@@ -31,6 +31,9 @@
             <td>{% if h.estado == 'usada' or h.estado == 'pagada' %}<span class="insignia insignia-verde">{{ h.estado|capitalize }}</span>{% else %}<span class="insignia insignia-roja">{{ h.estado|capitalize }}</span>{% endif %}</td>
             <td>
               {% if h.estado == 'pagada' %}
+                <form method="POST" action="{{ url_for('publico.reenviar_mail', compra_id=h.id) }}">
+                  <button class="boton boton-borde boton-chico" type="submit">Reenviar mail</button>
+                </form>
                 <form method="POST" action="#" data-confirmar="¿Cancelar esta compra?">
                   <button class="boton boton-peligro boton-chico" type="submit">Cancelar</button>
                 </form>
