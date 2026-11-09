@@ -1,7 +1,7 @@
 # Backoffice del administrador. Todas las rutas de acá empiezan con /admin.
 import requests
 from flask import Blueprint, redirect, render_template, request, session, url_for, current_app
-
+from services.api import llamar_api 
 from services import mock_data
 from services.auth import revisar_admin
 
@@ -33,36 +33,34 @@ def baja_servicio(servicio_id):
     return redirect(url_for("admin.servicios"))  # Hito 3: dar de baja en el backend
 
 @admin_bp.route("/backoffice")
-@admin_bp.route("/backoffice")
 def dashboard():
-    # 1. Configuración para conectar con el Backend
-    base_url = current_app.config.get("API_URL", "http://localhost:5000")
-    token = session.get('token')
-    print(f"DEBUG FRONTEND: Token a enviar -> {token[:20] if token else 'VACIO'}...")
-    headers = {"Authorization": f"Bearer {token}"}
-
     try:
-        # 2. Hacemos las peticiones a las rutas del backend
-        res_funciones = requests.get(f"{base_url}/admin/estadisticas/ocupacion/funciones", headers=headers)
-        res_peliculas = requests.get(f"{base_url}/admin/estadisticas/ocupacion/peliculas", headers=headers)
-        res_franjas = requests.get(f"{base_url}/admin/estadisticas/franjas_horarias", headers=headers)
-        res_generos = requests.get(f"{base_url}/admin/estadisticas/ventas_genero", headers=headers)
-        res_cancelaciones = requests.get(f"{base_url}/admin/estadisticas/cancelaciones", headers=headers)
+        
+        res_funciones = llamar_api("GET", "/admin/estadisticas/ocupacion/funciones")
+        res_peliculas = llamar_api("GET", "/admin/estadisticas/ocupacion/peliculas")
+        res_franjas = llamar_api("GET", "/admin/estadisticas/franjas_horarias")
+        res_generos = llamar_api("GET", "/admin/estadisticas/ventas_genero")
+        res_cancelaciones = llamar_api("GET", "/admin/estadisticas/cancelaciones")
 
-        # 3. Extraemos el JSON
+        # Chequeo de seguridad por si el backend está apagado
+        if not all([res_funciones, res_peliculas, res_franjas, res_generos, res_cancelaciones]):
+            raise Exception("El servidor Backend no responde")
+
+        # 2. Extraemos el JSON
         funciones_json = res_funciones.json() if res_funciones.status_code == 200 else []
         peliculas_json = res_peliculas.json() if res_peliculas.status_code == 200 else []
         franjas_json = res_franjas.json() if res_franjas.status_code == 200 else []
         generos_json = res_generos.json() if res_generos.status_code == 200 else []
         cancelaciones_json = res_cancelaciones.json() if res_cancelaciones.status_code == 200 else []
 
-        # 4. Transformamos los datos (a prueba de balas)
+        
         datos_funciones = []
         if isinstance(funciones_json, list):
             for f in funciones_json:
                 hora = f.get('fecha_hora_inicio', '')[11:16] if f.get('fecha_hora_inicio') else ""
                 etiqueta = f"{f.get('pelicula', 'Sin nombre')} {hora}"
                 datos_funciones.append([etiqueta, float(f.get('porcentaje_ocupacion', 0))])
+                
         datos_peliculas = []
         if isinstance(peliculas_json, list):
             datos_peliculas = [[p.get('pelicula', 'Sin nombre'), float(p.get('porcentaje_ocupacion', 0))] for p in peliculas_json]
@@ -75,14 +73,13 @@ def dashboard():
         if isinstance(generos_json, list):
             datos_generos = [[g.get('genero', 'Otro'), float(g.get('cantidad_entradas', 0))] for g in generos_json]
 
-        # Cálculo seguro de cancelaciones
         total_cancelaciones = 0
         if isinstance(cancelaciones_json, list):
             for item in cancelaciones_json:
                 if isinstance(item, dict):
                     total_cancelaciones += item.get('cantidad', 0)
 
-        # 5. Armamos el diccionario "est" final
+        # 4. Armamos el diccionario "est" final
         est = {
             "kpis": [
                 {"nombre": "Entradas vendidas", "valor": "1.284"}, 

@@ -30,7 +30,7 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1rem 0; }
 .pagina { padding-top: 1.5rem; padding-bottom: 1.5rem; }
 .grilla-peliculas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
 .grilla-2 { 
-    /* En lugar de grid, usamos columnas (como un diario) */
+    /* En lugar de grid, usamos columnas */
     column-count: 2;
     column-gap: 1rem;
 }
