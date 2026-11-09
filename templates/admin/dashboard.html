@@ -3,8 +3,11 @@
 {% block admin_content %}
 <h1>Dashboard</h1>
 <div class="grilla-4" style="margin-bottom:1rem">
-  {% for nombre, valor in est.kpis %}
-    <div class="panel"><div class="kpi">{{ valor }}</div><span class="chico tenue">{{ nombre }}</span></div>
+  {% for kpi in est.kpis %}
+    <div class="panel">
+        <div class="kpi">{{ kpi.valor }}</div>
+        <span class="chico tenue">{{ kpi.nombre }}</span>
+    </div>
   {% endfor %}
 </div>
 <div class="grilla-2">

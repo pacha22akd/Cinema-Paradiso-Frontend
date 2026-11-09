@@ -29,7 +29,17 @@ hr { border: 0; border-top: 1px solid var(--borde); margin: 1rem 0; }
 .contenedor { max-width: 1140px; margin: 0 auto; padding: 0 1rem; }
 .pagina { padding-top: 1.5rem; padding-bottom: 1.5rem; }
 .grilla-peliculas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
-.grilla-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.grilla-2 { 
+    /* En lugar de grid, usamos columnas (como un diario) */
+    column-count: 2;
+    column-gap: 1rem;
+}
+
+.grilla-2 > div {
+    /* Esto evita que un panel se corte a la mitad entre una columna y otra */
+    break-inside: avoid; 
+    margin-bottom: 1rem;
+}
 .grilla-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .grilla-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 .ancho-total { grid-column: 1 / -1; }
