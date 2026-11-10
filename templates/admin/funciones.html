@@ -1,0 +1,80 @@
+
+{% extends 'admin/admin_base.html' %}
+{% block title %}Administración de funciones{% endblock %}
+{% block admin_content %}
+<h1>Funciones</h1>
+
+<div class="panel panel-grande" style="margin-bottom:1.5rem">
+<h3>Crear función</h3>
+<form method="POST" action="{{ url_for('admin.guardar_funcion') }}" class="form-grilla">
+
+    <div class="campo">
+    <label for="pelicula_id">Película</label>
+    <select id="pelicula_id" name="pelicula_id" required>
+        <option value="">Seleccionar película</option>
+        {% for pelicula in peliculas %}
+        <option value="{{ pelicula.id }}">{{ pelicula.titulo }}</option>
+        {% endfor %}
+    </select>
+    </div>
+
+    <div class="campo">
+    <label for="sala_id">Sala</label>
+    <select id="sala_id" name="sala_id" required>
+        <option value="">Seleccionar sala</option>
+        {% for sala in salas %}
+        <option value="{{ sala.id }}">{{ sala.nombre }} - {{ sala.tipo }} - Local {{ sala.local_id }}</option>
+        {% endfor %}
+    </select>
+    </div>
+
+    <div class="campo">
+    <label for="fecha_hora_inicio">Fecha y hora de inicio</label>
+    <input type="datetime-local" id="fecha_hora_inicio" name="fecha_hora_inicio" required>
+    </div>
+
+    <div class="campo">
+    <label for="fecha_hora_fin">Fecha y hora de fin</label>
+    <input type="datetime-local" id="fecha_hora_fin" name="fecha_hora_fin" required>
+    </div>
+
+    <div class="campo">
+    <label for="precio_base">Precio</label>
+    <input type="number" id="precio_base" name="precio_base" min="0" step="0.01" required>
+    </div>
+
+    <div class="campo" style="align-self:end">
+    <button class="boton boton-rojo boton-bloque" type="submit">Guardar</button>
+    </div>
+
+</form>
+</div>
+
+<div class="tabla-contenedor">
+<table>
+    <thead>
+    <tr>
+        <th>Película</th>
+        <th>Sala</th>
+        <th>Inicio</th>
+        <th>Fin</th>
+        <th>Precio</th>
+        <th>Estado</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for f in funciones %}
+    <tr>
+        <td>{{ f.pelicula_id }}</td>
+        <td>{{ f.sala_id }}</td>
+        <td>{{ f.fecha_hora_inicio }}</td>
+        <td>{{ f.fecha_hora_fin }}</td>
+        <td>${{ f.precio_base }}</td>
+        <td>{{ f.estado }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock %}

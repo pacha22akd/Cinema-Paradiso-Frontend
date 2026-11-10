@@ -304,3 +304,46 @@ def dashboard():
         }
 
     return render_template("admin/dashboard.html", est=est)
+
+@admin_bp.route("/funciones", methods=["GET"])
+def funciones():
+    peliculas, estado = llamar_api("GET", "/admin/peliculas")
+    if estado != 200:
+        return responder_error_api(peliculas, estado)
+
+    salas, estado = llamar_api("GET", "/admin/salas")
+    if estado != 200:
+        return responder_error_api(salas, estado)
+
+    lista_funciones, estado = llamar_api("GET", "/admin/funciones")
+    if estado != 200:
+        return responder_error_api(lista_funciones, estado)
+
+    return render_template(
+        "admin/funciones.html",
+        peliculas=peliculas,
+        salas=salas,
+        funciones=lista_funciones
+    )
+
+
+@admin_bp.route("/funciones/guardar", methods=["POST"])
+def guardar_funcion():
+    try:
+        datos = {
+            "pelicula_id": int(request.form.get("pelicula_id", "")),
+            "sala_id": int(request.form.get("sala_id", "")),
+            "fecha_hora_inicio": request.form.get("fecha_hora_inicio", "").strip(),
+            "fecha_hora_fin": request.form.get("fecha_hora_fin", "").strip(),
+            "precio_base": float(request.form.get("precio_base", "")),
+            "estado": "programada"
+        }
+    except (ValueError, TypeError):
+        return "La pelicula, la sala y el precio deben ser validos", 400
+
+    resultado, estado = llamar_api("POST", "/admin/funciones", datos=datos)
+
+    if estado == 201:
+        return redirect(url_for("admin.funciones"))
+
+    return responder_error_api(resultado, estado)
