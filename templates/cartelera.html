@@ -6,7 +6,7 @@
 <h1>Películas</h1>
 
 <form class="buscador" method="GET" action="{{ url_for('publico.peliculas') }}" role="search">
-  <input type="search" name="q" id="buscar-pelicula" value="{{ búsqueda }}" placeholder="Buscar..."
+  <input type="search" name="q" id="buscar-pelicula" value="{{ busqueda }}" placeholder="Buscar..."
          aria-label="Buscar película por nombre" autocomplete="off">
   <button class="boton boton-rojo" type="submit">Buscar</button>
   {% if busqueda %}
@@ -14,7 +14,7 @@
   {% endif %}
 </form>
 
-{% if q %}
+{% if busqueda %}
   <p class="chico tenue">
     {{ peliculas|length }} resultado{{ '' if peliculas|length == 1 else 's' }} para "{{ busqueda }}"
   </p>
@@ -28,9 +28,14 @@
   </div>
 {% else %}
   <div class="panel texto-centro">
-    <h3>Sin resultados</h3>
-    <p class="tenue">No encontramos ninguna película que se llame "{{ busqueda }}".</p>
-    <a class="boton boton-borde" href="{{ url_for('publico.peliculas') }}">Ver todas las películas</a>
+    {% if busqueda %}
+      <h3>Sin resultados</h3>
+      <p class="tenue">No encontramos ninguna película que se llame "{{ busqueda }}".</p>
+      <a class="boton boton-borde" href="{{ url_for('publico.peliculas') }}">Ver todas las películas</a>
+    {% else %}
+      <h3>Sin películas disponibles</h3>
+      <p class="tenue">Películas en cartelera próximamente.</p>
+    {% endif %}
   </div>
 {% endif %}
 {% endblock %}
