@@ -12,25 +12,190 @@ def proteger():
     # Se ejecuta antes de CUALQUIER ruta de admin: hay que ser administrador
     return revisar_admin()
 
+def responder_error_api(mensaje, estado):
+    if estado == 401:
+        session.clear()
+        return redirect(url_for("publico.login"))
+
+    return str(mensaje), estado
+
+def leer_datos_pelicula():
+    datos = {
+        "titulo": request.form.get("titulo", "").strip(),
+        "sinopsis": request.form.get("sinopsis", "").strip(),
+        "poster_url": request.form.get("poster_url", "").strip(),
+        "genero": request.form.get("genero", "").strip(),
+        "clasificacion": request.form.get("clasificacion", "").strip(),
+        "api_id": request.form.get("api_id", "").strip()
+    }
+
+    for campo in ("duracion_min", "anio_estreno"):
+        valor = request.form.get(campo, "").strip()
+
+        if valor == "":
+            datos[campo] = None
+
+        else:
+            try:
+                datos[campo] = int(valor)
+
+            except ValueError:
+                return None, f"El campo {campo} debe ser un numero entero"
+
+    return datos, None
 
 @admin_bp.route("/peliculas", methods=["GET", "POST"])
 def peliculas():
     if request.method == "POST":
-        return redirect(url_for("admin.peliculas"))  # Hito 3: acá se envía la película al backend
-    peliculas = mock_data.get_peliculas()
-    return render_template("admin/peliculas.html", peliculas=peliculas, cines=mock_data.get_cines())
+        datos, error = leer_datos_pelicula()
+
+        if error is not None:
+            return error, 400
+
+        resultado, estado = llamar_api("POST", "/admin/peliculas", datos=datos)
+
+        if estado == 201:
+            return redirect(url_for("admin.peliculas"))
+
+        return responder_error_api(resultado, estado)
+
+    lista, estado = llamar_api("GET", "/admin/peliculas")
+
+    if estado != 200:
+        return responder_error_api(lista, estado)
+
+    pelicula_editar = None
+    id_editar = request.args.get("editar", type=int)
+
+    if id_editar is not None:
+        for pelicula in lista:
+            if pelicula["id"] == id_editar:
+                pelicula_editar = pelicula
+
+        if pelicula_editar is None:
+            return "La pelicula solicitada no existe", 404
+
+    return render_template("admin/peliculas.html", peliculas=lista, pelicula_editar=pelicula_editar)
+
+@admin_bp.route("/peliculas/<int:pelicula_id>/editar", methods=["POST"])
+def editar_pelicula(pelicula_id):
+    datos, error = leer_datos_pelicula()
+
+    if error is not None:
+        return error, 400
+
+    resultado, estado = llamar_api("PATCH", f"/admin/peliculas/{pelicula_id}", datos=datos)
+
+    if estado == 200:
+        return redirect(url_for("admin.peliculas"))
+
+    return responder_error_api(resultado, estado)
+
+
+@admin_bp.route("/peliculas/<int:pelicula_id>/eliminar", methods=["POST"])
+def eliminar_pelicula(pelicula_id):
+    resultado, estado = llamar_api("DELETE", f"/admin/peliculas/{pelicula_id}")
+
+    if estado == 200:
+        return redirect(url_for("admin.peliculas"))
+
+    return responder_error_api(resultado, estado)
+
+def leer_datos_servicio():
+    try:
+        precio = float(request.form.get("precio", ""))
+
+    except ValueError:
+        return None, "El precio debe ser un numero valido"
+
+    if precio <= 0:
+        return None, "El precio debe ser mayor a cero"
+
+    texto_stock = request.form.get("stock", "").strip()
+    stock = None
+
+    if texto_stock != "":
+        try:
+            stock = int(texto_stock)
+
+        except ValueError:
+            return None, "El stock debe ser un numero entero"
+
+        if stock < 0:
+            return None, "El stock no puede ser negativo"
+
+    datos = {
+        "nombre": request.form.get("nombre", "").strip(),
+        "descripcion": request.form.get("descripcion", "").strip(),
+        "categoria": request.form.get("categoria", "").strip(),
+        "precio": precio,
+        "stock": stock,
+        "imagen_url": request.form.get("imagen_url", "").strip()
+    }
+
+    return datos, None
 
 @admin_bp.route("/servicios")
 def servicios():
-    return render_template("admin/servicios.html", servicios=mock_data.get_servicios())
+    lista, estado = llamar_api("GET", "/admin/servicios")
+
+    if estado == 404 and lista == "No hay servicios actualmente":
+        lista = []
+
+    elif estado != 200:
+        return responder_error_api(lista, estado)
+
+    servicio_editar = None
+    id_editar = request.args.get("editar", type=int)
+
+    if id_editar is not None:
+        for servicio in lista:
+            if servicio["id"] == id_editar:
+                servicio_editar = servicio
+
+        if servicio_editar is None:
+            return "El servicio solicitado no existe", 404
+
+    return render_template("admin/servicios.html", servicios=lista, servicio_editar=servicio_editar)
 
 @admin_bp.route("/servicios/guardar", methods=["POST"])
 def guardar_servicio():
-    return redirect(url_for("admin.servicios"))  # Hito 3: guardar en el backend
+    datos, error = leer_datos_servicio()
+
+    if error is not None:
+        return error, 400
+
+    resultado, estado = llamar_api("POST", "/admin/servicios", datos=datos)
+
+    if estado == 201:
+        return redirect(url_for("admin.servicios"))
+
+    return responder_error_api(resultado, estado)
+
+
+@admin_bp.route("/servicios/<int:servicio_id>/editar", methods=["POST"])
+def editar_servicio(servicio_id):
+    datos, error = leer_datos_servicio()
+
+    if error is not None:
+        return error, 400
+
+    resultado, estado = llamar_api("PATCH", f"/admin/servicios/{servicio_id}", datos=datos)
+
+    if estado == 200:
+        return redirect(url_for("admin.servicios"))
+
+    return responder_error_api(resultado, estado)
+
 
 @admin_bp.route("/servicios/<int:servicio_id>/baja", methods=["POST"])
 def baja_servicio(servicio_id):
-    return redirect(url_for("admin.servicios"))  # Hito 3: dar de baja en el backend
+    resultado, estado = llamar_api("DELETE", f"/admin/servicios/{servicio_id}")
+
+    if estado == 200:
+        return redirect(url_for("admin.servicios"))
+
+    return responder_error_api(resultado, estado)
 
 @admin_bp.route("/backoffice")
 def dashboard():
