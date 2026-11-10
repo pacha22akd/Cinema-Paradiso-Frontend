@@ -52,6 +52,14 @@ def peliculas():
         if error is not None:
             return error, 400
 
+        if request.form.get("accion") == "precargar":
+            lista, estado = llamar_api("GET", "/admin/peliculas")
+
+            if estado != 200:
+                return responder_error_api(lista, estado)
+
+            return render_template("admin/peliculas.html", peliculas=lista, pelicula_editar=None, pelicula_precarga=datos)
+
         resultado, estado = llamar_api("POST", "/admin/peliculas", datos=datos)
 
         if estado == 201:
@@ -75,7 +83,7 @@ def peliculas():
         if pelicula_editar is None:
             return "La pelicula solicitada no existe", 404
 
-    return render_template("admin/peliculas.html", peliculas=lista, pelicula_editar=pelicula_editar)
+    return render_template("admin/peliculas.html", peliculas=lista, pelicula_editar=pelicula_editar, pelicula_precarga=None)
 
 @admin_bp.route("/peliculas/<int:pelicula_id>/editar", methods=["POST"])
 def editar_pelicula(pelicula_id):
@@ -100,6 +108,38 @@ def eliminar_pelicula(pelicula_id):
         return redirect(url_for("admin.peliculas"))
 
     return responder_error_api(resultado, estado)
+
+@admin_bp.route("/peliculas/externas", methods=["GET"])
+def buscar_pelicula_omdb():
+    titulo = request.args.get("titulo")
+    anio = request.args.get("anio", "").strip()
+    pelicula = None
+    mensaje = None
+
+    if titulo is not None:
+        titulo = titulo.strip()
+
+        if titulo == "":
+            mensaje = "El titulo es obligatorio"
+
+        else:
+            parametros = {"titulo": titulo}
+
+            if anio != "":
+                parametros["anio"] = anio
+
+            resultado, estado = llamar_api("GET", "/admin/peliculas/externas", parametros=parametros)
+
+            if estado == 200:
+                pelicula = resultado
+
+            elif estado == 404:
+                mensaje = str(resultado)
+
+            else:
+                return responder_error_api(resultado, estado)
+
+    return render_template("admin/peliculas_omdb.html", pelicula=pelicula, mensaje=mensaje, titulo=titulo or "", anio=anio)
 
 def leer_datos_servicio():
     try:

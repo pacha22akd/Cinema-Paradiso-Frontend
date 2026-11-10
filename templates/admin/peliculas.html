@@ -1,18 +1,22 @@
 {% extends 'admin/admin_base.html' %}
 {% block title %}Carga de películas{% endblock %}
 {% block admin_content %}
-<h1>Películas</h1>
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem">
+  <h1 style="margin:0">Películas</h1>
+  <a class="boton boton-rojo" href="{{ url_for('admin.buscar_pelicula_omdb') }}">Buscar en OMDb</a>
+</div>
 <div class="panel panel-grande" style="margin-bottom:1.5rem">
   <h3>Cargar película</h3>
+  {% set pelicula_form = pelicula_editar if pelicula_editar else pelicula_precarga %}
   <form method="POST" action="{{ url_for('admin.editar_pelicula', pelicula_id=pelicula_editar.id) if pelicula_editar else url_for('admin.peliculas') }}" class="form-grilla">
-    <div class="campo"><label for="titulo">Título</label><input type="text" id="titulo" name="titulo" required value="{{ pelicula_editar.titulo if pelicula_editar and pelicula_editar.titulo else '' }}"></div>
-    <div class="campo ancho-total"><label for="poster_url">URL del póster</label><input type="url" id="poster_url" name="poster_url" maxlength="500" value="{{ pelicula_editar.poster_url if pelicula_editar and pelicula_editar.poster_url else '' }}"></div>
-    <div class="campo ancho-total"><label for="sinopsis">Sinopsis</label><textarea id="sinopsis" name="sinopsis" rows="3" required>{{ pelicula_editar.sinopsis if pelicula_editar and pelicula_editar.sinopsis else '' }}</textarea></div>
-    <div class="campo"><label for="duracion_min">Duración (minutos)</label><input type="number" id="duracion_min" name="duracion_min" min="1" step="1" value="{{ pelicula_editar.duracion_min if pelicula_editar and pelicula_editar.duracion_min is not none else '' }}"></div>
-    <div class="campo"><label for="genero">Género</label><input type="text" id="genero" name="genero" maxlength="100" value="{{ pelicula_editar.genero if pelicula_editar and pelicula_editar.genero else '' }}"></div>
-    <div class="campo"><label for="clasificacion">Clasificación</label><input type="text" id="clasificacion" name="clasificacion" maxlength="20" value="{{ pelicula_editar.clasificacion if pelicula_editar and pelicula_editar.clasificacion else '' }}"></div>
-    <div class="campo"><label for="anio_estreno">Año de estreno</label><input type="number" id="anio_estreno" name="anio_estreno" min="1" step="1" value="{{ pelicula_editar.anio_estreno if pelicula_editar and pelicula_editar.anio_estreno is not none else '' }}"></div>
-    <div class="campo"><label for="api_id">ID de IMDb</label><input type="text" id="api_id" name="api_id" maxlength="50" value="{{ pelicula_editar.api_id if pelicula_editar and pelicula_editar.api_id else '' }}"></div>
+    <div class="campo"><label for="titulo">Título</label><input type="text" id="titulo" name="titulo" required value="{{ pelicula_form.titulo if pelicula_form and pelicula_form.titulo else '' }}"></div>
+    <div class="campo ancho-total"><label for="poster_url">URL del póster</label><input type="url" id="poster_url" name="poster_url" maxlength="500" value="{{ pelicula_form.poster_url if pelicula_form and pelicula_form.poster_url else '' }}"></div>
+    <div class="campo ancho-total"><label for="sinopsis">Sinopsis</label><textarea id="sinopsis" name="sinopsis" rows="3" required>{{ pelicula_form.sinopsis if pelicula_form and pelicula_form.sinopsis else '' }}</textarea></div>
+    <div class="campo"><label for="duracion_min">Duración (minutos)</label><input type="number" id="duracion_min" name="duracion_min" min="1" step="1" value="{{ pelicula_form.duracion_min if pelicula_form and pelicula_form.duracion_min is not none else '' }}"></div>
+    <div class="campo"><label for="genero">Género</label><input type="text" id="genero" name="genero" maxlength="100" value="{{ pelicula_form.genero if pelicula_form and pelicula_form.genero else '' }}"></div>
+    <div class="campo"><label for="clasificacion">Clasificación</label><input type="text" id="clasificacion" name="clasificacion" maxlength="20" value="{{ pelicula_form.clasificacion if pelicula_form and pelicula_form.clasificacion else '' }}"></div>
+    <div class="campo"><label for="anio_estreno">Año de estreno</label><input type="number" id="anio_estreno" name="anio_estreno" min="1" step="1" value="{{ pelicula_form.anio_estreno if pelicula_form and pelicula_form.anio_estreno is not none else '' }}"></div>
+    <div class="campo"><label for="api_id">ID de IMDb</label><input type="text" id="api_id" name="api_id" maxlength="50" value="{{ pelicula_form.api_id if pelicula_form and pelicula_form.api_id else '' }}"></div>
     <div class="ancho-total"><button class="boton boton-rojo" type="submit">Guardar película</button></div>
   </form>
 </div>

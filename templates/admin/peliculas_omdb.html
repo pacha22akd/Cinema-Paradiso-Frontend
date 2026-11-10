@@ -1,0 +1,53 @@
+
+{% extends 'admin/admin_base.html' %}
+{% block title %}Buscar películas en OMDb{% endblock %}
+{% block admin_content %}
+<h1>Buscar películas en OMDb</h1>
+<div class="panel panel-grande" style="margin-bottom:1.5rem">
+  <h3>Buscar película</h3>
+  <form method="GET" action="{{ url_for('admin.buscar_pelicula_omdb') }}" class="form-grilla">
+    <div class="campo"><label for="titulo">Título</label><input type="text" id="titulo" name="titulo" value="{{ titulo }}" required></div>
+    <div class="campo"><label for="anio">Año (opcional)</label><input type="text" id="anio" name="anio" pattern="[0-9]{4}" maxlength="4" value="{{ anio }}"></div>
+    <div class="campo" style="align-self:end"><button class="boton boton-rojo" type="submit">Buscar</button></div>
+  </form>
+</div>
+{% if mensaje %}
+<div class="panel" style="margin-bottom:1.5rem">
+  <p>{{ mensaje }}</p>
+</div>
+{% endif %}
+{% if pelicula %}
+<div class="panel panel-grande">
+  <h3>Película encontrada</h3>
+  <div style="display:flex; gap:1.5rem; flex-wrap:wrap">
+    {% if pelicula.poster_url %}
+    <img src="{{ pelicula.poster_url }}" alt="Póster de {{ pelicula.titulo }}" style="width:180px; max-width:100%; object-fit:contain">
+    {% endif %}
+    <div style="flex:1; min-width:200px">
+      <h3>{{ pelicula.titulo }}</h3>
+      <p><strong>Género:</strong> {{ pelicula.genero or '—' }}</p>
+      <p><strong>Duración:</strong> {{ pelicula.duracion_min if pelicula.duracion_min is not none else '—' }} minutos</p>
+      <p><strong>Clasificación:</strong> {{ pelicula.clasificacion or '—' }}</p>
+      <p><strong>Año de estreno:</strong> {{ pelicula.anio_estreno if pelicula.anio_estreno is not none else '—' }}</p>
+      <p><strong>ID de IMDb:</strong> {{ pelicula.api_id or '—' }}</p>
+      <p><strong>Sinopsis:</strong> {{ pelicula.sinopsis or '—' }}</p>
+    </div>
+  </div>
+  <form method="POST" action="{{ url_for('admin.peliculas') }}" style="margin-top:1.5rem">
+    <input type="hidden" name="titulo" value="{{ pelicula.titulo or '' }}">
+    <input type="hidden" name="sinopsis" value="{{ pelicula.sinopsis or '' }}">
+    <input type="hidden" name="poster_url" value="{{ pelicula.poster_url or '' }}">
+    <input type="hidden" name="genero" value="{{ pelicula.genero or '' }}">
+    <input type="hidden" name="duracion_min" value="{{ pelicula.duracion_min if pelicula.duracion_min is not none else '' }}">
+    <input type="hidden" name="clasificacion" value="{{ pelicula.clasificacion or '' }}">
+    <input type="hidden" name="anio_estreno" value="{{ pelicula.anio_estreno if pelicula.anio_estreno is not none else '' }}">
+    <input type="hidden" name="api_id" value="{{ pelicula.api_id or '' }}">
+    <input type="hidden" name="accion" value="precargar">
+    <button class="boton boton-rojo" type="submit">Usar datos en el formulario</button>
+  </form>
+</div>
+{% endif %}
+<div style="margin-top:1.5rem">
+  <a class="boton boton-claro" href="{{ url_for('admin.peliculas') }}">Volver a películas</a>
+</div>
+{% endblock %}
