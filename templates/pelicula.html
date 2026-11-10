@@ -7,16 +7,15 @@
   <div class="programa-sinopsis">
     <h2>Sinopsis</h2>
     <p>{{ pelicula.sinopsis }}</p>
-    <p class="tenue chico">{{ pelicula.genero }} · {{ pelicula.duracion }} min · {{ pelicula.clasificacion }} · {{ pelicula.pais }}</p>
+    <p class="tenue chico">{{ pelicula.genero }} · {{ pelicula.duracion_min }} min · {{ pelicula.clasificacion }}</p>
     <a class="boton boton-rojo" href="{{ url_for('compra.horario', pelicula_id=pelicula.id) }}">Comprar entradas</a>
   </div>
 
   {# Derecha: título y póster #}
-  <div class="programa-poster">
+<div class="programa-poster">
     <h1>{{ pelicula.titulo }}</h1>
     <div class="poster-wrap">
-      <img src="{{ pelicula.poster }}" alt="Póster de {{ pelicula.titulo }}">
-      <span class="poster-tag {{ pelicula.clase_etiqueta }}">{{ pelicula.etiqueta }}</span>
+      <img src="{{ pelicula.poster_url }}" alt="Póster de {{ pelicula.titulo }}">
     </div>
   </div>
 

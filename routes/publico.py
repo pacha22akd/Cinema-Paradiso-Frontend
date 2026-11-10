@@ -1,15 +1,18 @@
 # Pantallas públicas: cartelera, detalle de película, login y perfil.
 import unicodedata
 from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
-from services import mock_data
 from services.auth import revisar_login
 from services.api import llamar_api
+from routes.compra import get_pelicula
 
 publico_bp = Blueprint("publico", __name__)
 
 @publico_bp.route("/")
 def cartelera():
-    peliculas = mock_data.get_peliculas()
+    peliculas, estado = llamar_api("GET", "/peliculas")
+    if estado != 200:
+        flash("No se pudo cargar la cartelera. Por favor, intentá de nuevo más tarde.", "error")
+        peliculas = []  # Forzamos lista vacía si hubo error
     return render_template("index.html", peliculas=peliculas)
 
 def sin_acentos(texto):
@@ -19,7 +22,11 @@ def sin_acentos(texto):
 @publico_bp.route("/peliculas")
 def peliculas():
     busqueda = request.args.get("q", "").strip()
-    todas = mock_data.get_peliculas()
+    todas, estado = llamar_api("GET", "/peliculas")
+    
+    if estado != 200:
+        flash("No se pudieron cargar las películas.", "error")
+        todas = []
 
     if busqueda:
         buscado = sin_acentos(busqueda)
@@ -31,13 +38,16 @@ def peliculas():
 
 @publico_bp.route("/pelicula/<int:pelicula_id>")
 def pelicula(pelicula_id):
-    peli = mock_data.get_pelicula(pelicula_id)
+    peli, estado = get_pelicula(pelicula_id)
+
+    if estado != 200:
+        flash("No se pudo cargar la película.", "error")
+        return redirect(url_for("publico.peliculas"))
+
     if peli is None:
         abort(404)
-    cines = mock_data.get_cines()
-    funciones = mock_data.get_funciones(pelicula_id)
-    return render_template("pelicula.html", pelicula=peli, cines=cines, funciones=funciones)
 
+    return render_template("pelicula.html", pelicula=peli)
 
 @publico_bp.route('/login', methods=['GET', 'POST'])
 def login():

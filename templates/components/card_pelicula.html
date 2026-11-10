@@ -1,9 +1,8 @@
 {# Requiere la variable `p` (película) #}
 <a class="poster-card" href="{{ url_for('publico.pelicula', pelicula_id=p.id) }}">
   <div class="poster-wrap">
-    <img src="{{ p.poster }}" alt="Póster de {{ p.titulo }}" loading="lazy">
-    <span class="poster-tag {{ p.clase_etiqueta }}">{{ p.etiqueta }}</span>
+    <img src="{{ p.poster_url }}" alt="Póster de {{ p.titulo }}" loading="lazy">
   </div>
   <h3 class="poster-title">{{ p.titulo }}</h3>
-  <div class="poster-meta">{{ p.pais }} · {{ p.duracion }} min</div>
+  <div class="poster-meta"> {{ p.duracion_min }} min</div>
 </a>
