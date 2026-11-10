@@ -1,29 +1,32 @@
+
 {% extends 'admin/admin_base.html' %}
 {% block title %}ABM de servicios{% endblock %}
 {% block admin_content %}
 <h1>Servicios</h1>
 <div class="panel panel-grande" style="margin-bottom:1.5rem">
   <h3>Alta / modificación</h3>
-  <form method="POST" action="{{ url_for('admin.guardar_servicio') }}" class="form-grilla">
-    <div class="campo"><label for="nombre">Nombre</label><input type="text" id="nombre" name="nombre" required></div>
+  <form method="POST" action="{{ url_for('admin.editar_servicio', servicio_id=servicio_editar.id) if servicio_editar else url_for('admin.guardar_servicio') }}" class="form-grilla">
+    <div class="campo"><label for="nombre">Nombre</label><input type="text" id="nombre" name="nombre" required value="{{ servicio_editar.nombre if servicio_editar else '' }}"></div>
     <div class="campo"><label for="categoria">Categoría</label>
       <select id="categoria" name="categoria">
-        <option>Comida</option><option>Bebida</option><option>Estacionamiento</option><option>VIP</option></select></div>
-    <div class="campo"><label for="precio">Precio</label><input type="number" min="0" step="0.01" id="precio" name="precio" required></div>
+        <option {% if servicio_editar and servicio_editar.categoria == 'Comida' %}selected{% endif %}>Comida</option><option {% if servicio_editar and servicio_editar.categoria == 'Bebida' %}selected{% endif %}>Bebida</option><option {% if servicio_editar and servicio_editar.categoria == 'Estacionamiento' %}selected{% endif %}>Estacionamiento</option><option {% if servicio_editar and servicio_editar.categoria == 'VIP' %}selected{% endif %}>VIP</option></select></div>
+    <div class="campo"><label for="precio">Precio</label><input type="number" min="0.01" step="0.01" id="precio" name="precio" required value="{{ servicio_editar.precio if servicio_editar and servicio_editar.precio is not none else '' }}"></div>
+    <div class="campo"><label for="stock">Stock</label><input type="number" min="0" step="1" id="stock" name="stock" value="{{ servicio_editar.stock if servicio_editar and servicio_editar.stock is not none else '' }}"></div>
+    <div class="campo ancho-total"><label for="descripcion">Descripción</label><textarea id="descripcion" name="descripcion" rows="3">{{ servicio_editar.descripcion if servicio_editar and servicio_editar.descripcion else '' }}</textarea></div>
+    <div class="campo ancho-total"><label for="imagen_url">URL de imagen</label><input type="url" id="imagen_url" name="imagen_url" maxlength="500" value="{{ servicio_editar.imagen_url if servicio_editar and servicio_editar.imagen_url else '' }}"></div>
     <div class="campo" style="align-self:end"><button class="boton boton-rojo boton-bloque" type="submit">Guardar</button></div>
   </form>
 </div>
 <div class="tabla-contenedor">
   <table>
-    <thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Estado</th><th></th></tr></thead>
+    <thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th><th></th></tr></thead>
     <tbody>
     {% for s in servicios %}
-      <tr><td>{{ s.nombre }}</td><td>{{ s.categoria }}</td><td>${{ s.precio }}</td>
-        <td>{% if s.activo %}<span class="insignia insignia-verde">Activo</span>{% else %}<span class="insignia">De baja</span>{% endif %}</td>
+      <tr><td>{{ s.nombre }}</td><td>{{ s.categoria }}</td><td>${{ s.precio }}</td><td>{{ s.stock if s.stock is not none else '—' }}</td>
         <td><div class="celda-acciones">
-          <a class="boton boton-claro boton-chico" href="#">Editar</a>
+          <a class="boton boton-claro boton-chico" href="{{ url_for('admin.servicios', editar=s.id) }}">Editar</a>
           <form method="POST" action="{{ url_for('admin.baja_servicio', servicio_id=s.id) }}">
-            <button class="boton boton-rojo boton-chico" type="submit" {% if not s.activo %}disabled{% endif %}>Dar de baja</button>
+            <button class="boton boton-rojo boton-chico" type="submit">Eliminar</button>
           </form>
         </div></td></tr>
     {% endfor %}

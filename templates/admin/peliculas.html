@@ -4,16 +4,15 @@
 <h1>Películas</h1>
 <div class="panel panel-grande" style="margin-bottom:1.5rem">
   <h3>Cargar película</h3>
-  <form method="POST" enctype="multipart/form-data" class="form-grilla">
-    <div class="campo"><label for="titulo">Título</label><input type="text" id="titulo" name="titulo" required></div>
-    <div class="campo"><label for="imagen">Póster</label><input type="file" id="imagen" name="imagen" accept="image/*"></div>
-    <div class="campo ancho-total"><label for="sinopsis">Sinopsis</label><textarea id="sinopsis" name="sinopsis" rows="3" required></textarea></div>
-    <div class="campo"><label for="cine">Local</label>
-      <select id="cine" name="cine_id">{% for c in cines %}<option value="{{ c.id }}">{{ c.nombre }}</option>{% endfor %}</select></div>
-    <div class="campo"><label for="sala">Sala</label><input type="text" id="sala" name="sala" required></div>
-    <div class="campo"><label for="capacidad">Capacidad</label><input type="number" min="1" id="capacidad" name="capacidad" required></div>
-    <div class="campo"><label for="desde">Disponible desde</label><input type="datetime-local" id="desde" name="desde" required></div>
-    <div class="campo"><label for="hasta">Disponible hasta</label><input type="datetime-local" id="hasta" name="hasta" required></div>
+  <form method="POST" action="{{ url_for('admin.editar_pelicula', pelicula_id=pelicula_editar.id) if pelicula_editar else url_for('admin.peliculas') }}" class="form-grilla">
+    <div class="campo"><label for="titulo">Título</label><input type="text" id="titulo" name="titulo" required value="{{ pelicula_editar.titulo if pelicula_editar and pelicula_editar.titulo else '' }}"></div>
+    <div class="campo ancho-total"><label for="poster_url">URL del póster</label><input type="url" id="poster_url" name="poster_url" maxlength="500" value="{{ pelicula_editar.poster_url if pelicula_editar and pelicula_editar.poster_url else '' }}"></div>
+    <div class="campo ancho-total"><label for="sinopsis">Sinopsis</label><textarea id="sinopsis" name="sinopsis" rows="3" required>{{ pelicula_editar.sinopsis if pelicula_editar and pelicula_editar.sinopsis else '' }}</textarea></div>
+    <div class="campo"><label for="duracion_min">Duración (minutos)</label><input type="number" id="duracion_min" name="duracion_min" min="1" step="1" value="{{ pelicula_editar.duracion_min if pelicula_editar and pelicula_editar.duracion_min is not none else '' }}"></div>
+    <div class="campo"><label for="genero">Género</label><input type="text" id="genero" name="genero" maxlength="100" value="{{ pelicula_editar.genero if pelicula_editar and pelicula_editar.genero else '' }}"></div>
+    <div class="campo"><label for="clasificacion">Clasificación</label><input type="text" id="clasificacion" name="clasificacion" maxlength="20" value="{{ pelicula_editar.clasificacion if pelicula_editar and pelicula_editar.clasificacion else '' }}"></div>
+    <div class="campo"><label for="anio_estreno">Año de estreno</label><input type="number" id="anio_estreno" name="anio_estreno" min="1" step="1" value="{{ pelicula_editar.anio_estreno if pelicula_editar and pelicula_editar.anio_estreno is not none else '' }}"></div>
+    <div class="campo"><label for="api_id">ID de IMDb</label><input type="text" id="api_id" name="api_id" maxlength="50" value="{{ pelicula_editar.api_id if pelicula_editar and pelicula_editar.api_id else '' }}"></div>
     <div class="ancho-total"><button class="boton boton-rojo" type="submit">Guardar película</button></div>
   </form>
 </div>
@@ -22,10 +21,10 @@
     <thead><tr><th></th><th>Título</th><th>Género</th><th>Duración</th><th></th></tr></thead>
     <tbody>
     {% for p in peliculas %}
-      <tr><td><img src="{{ p.poster }}" alt="" width="36"></td><td>{{ p.titulo }}</td><td>{{ p.genero }}</td><td>{{ p.duracion }} min</td>
+      <tr><td>{% if p.poster_url %}<img src="{{ p.poster_url }}" alt="" width="36">{% endif %}</td><td>{{ p.titulo }}</td><td>{{ p.genero }}</td><td>{% if p.duracion_min is not none %}{{ p.duracion_min }} min{% else %}—{% endif %}</td>
         <td><div class="celda-acciones">
-          <a class="boton boton-claro boton-chico" href="#">Editar</a>
-          <a class="boton boton-rojo boton-chico" href="#">Dar de baja</a>
+          <a class="boton boton-claro boton-chico" href="{{ url_for('admin.peliculas', editar=p.id) }}">Editar</a>
+          <form method="POST" action="{{ url_for('admin.eliminar_pelicula', pelicula_id=p.id) }}"><button class="boton boton-rojo boton-chico" type="submit">Eliminar</button></form>
         </div></td></tr>
     {% endfor %}
     </tbody>
