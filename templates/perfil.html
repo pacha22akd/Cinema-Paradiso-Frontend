@@ -35,7 +35,7 @@
                   <form method="POST" action="{{ url_for('publico.reenviar_mail', compra_id=h.id) }}">
                     <button class="boton boton-claro boton-chico" type="submit" style="white-space: nowrap">Reenviar mail</button>
                   </form>
-                  <form method="POST" action="#" data-confirmar="¿Cancelar esta compra?">
+                  <form method="POST" action="{{ url_for('publico.cancelar_compra_perfil', compra_id=h.id )}}" data-confirmar="¿Cancelar esta compra?">
                     <button class="boton boton-peligro boton-chico" type="submit" style="white-space: nowrap">Cancelar</button>
                   </form>
                 </div>
