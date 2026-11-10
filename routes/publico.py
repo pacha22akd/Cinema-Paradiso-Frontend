@@ -119,6 +119,20 @@ def reenviar_mail(compra_id):
 
     return redirect(url_for("publico.perfil"))
 
+@publico_bp.route("/perfil/compras/<int:compra_id>/cancelar", methods=["POST"])
+def cancelar_compra_perfil(compra_id):
+    redireccion = revisar_login()
+    if redireccion:
+        return redireccion
+
+    respuesta, status = llamar_api("PATCH", f"/compras/{compra_id}/cancelar", datos={"motivo": "Cancelada por el usuario"})
+
+    if status == 200:
+        flash("Tu compra fue cancelada exitosamente.", "success")
+    else:
+        flash(respuesta, "danger")
+    return redirect(url_for("publico.perfil"))
+
 @publico_bp.route("/perfil/editar", methods=["GET", "POST"])
 def editar_perfil():
     respuesta_auth = revisar_login()
