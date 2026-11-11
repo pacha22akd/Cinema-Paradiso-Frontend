@@ -110,7 +110,6 @@ def manejar_error(mensaje, estado):
 
 @compra_bp.app_template_filter("precio")
 def formato_precio(valor):
-    """Filtro para los templates: {{ 8500.0|precio }} -> $8.500 (con punto de miles)."""
     texto = "{:,.2f}".format(valor)                                       
     texto = texto.replace(",", "X").replace(".", ",").replace("X", ".")   
     if texto.endswith(",00"):
@@ -119,9 +118,6 @@ def formato_precio(valor):
 
 
 def agrupar_por_local(funciones):
-    """Convierte la lista de funciones en una lista de cines, cada uno con sus funciones:
-    [{"id": 1, "nombre": "Cine Paradiso Centro", "direccion": ..., "funciones": [...]}, ...]
-    Así el template recorre cines y dentro de cada uno sus horarios, sin filtrar nada."""
     locales = []
     for funcion in funciones:
         grupo = None
@@ -137,9 +133,6 @@ def agrupar_por_local(funciones):
 
 
 def armar_resumen(funcion, butacas_sala, servicios, datos):
-    """Con lo que eligió el usuario (datos = request.values) calcula la cantidad de entradas,
-    las butacas, los servicios y el total. Los precios salen siempre del backend, nunca de lo
-    que venga en la URL."""
     maximo_entradas = 8
 
     cantidad = datos.get("cantidad", 0, type=int)
