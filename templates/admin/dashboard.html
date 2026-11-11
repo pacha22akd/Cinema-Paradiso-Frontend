@@ -11,7 +11,7 @@
   {% endfor %}
 </div>
 <div class="grilla-2">
-  {# Cada gráfico es el mismo componente con distintos datos #}
+  
   <div>{% set titulo = 'Ocupación por función' %}{% set datos = est.ocupacion_funcion %}{% set sufijo = ' %' %}{% include 'components/grafico_barras.html' %}</div>
   <div>{% set titulo = 'Ocupación por película' %}{% set datos = est.ocupacion_pelicula %}{% set sufijo = ' %' %}{% include 'components/grafico_barras.html' %}</div>
   <div>{% set titulo = 'Ventas por género' %}{% set datos = est.ventas_genero %}{% set sufijo = ' %' %}{% include 'components/grafico_barras.html' %}</div>

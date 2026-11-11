@@ -246,15 +246,19 @@ def dashboard():
         franjas_json, status_fr = llamar_api("GET", "/admin/estadisticas/franjas_horarias")
         generos_json, status_g = llamar_api("GET", "/admin/estadisticas/ventas_genero")
         cancelaciones_json, status_c = llamar_api("GET", "/admin/estadisticas/cancelaciones")
+        kpis_json, status_k = llamar_api("GET", "/admin/estadisticas/kpis")
 
-        # 2. Si la API devolvió error (status != 200), forzamos lista vacía
+      
         if status_f != 200: funciones_json = []
         if status_p != 200: peliculas_json = []
         if status_fr != 200: franjas_json = []
         if status_g != 200: generos_json = []
         if status_c != 200: cancelaciones_json = []
+        
+        if status_k != 200 or not kpis_json:
+            kpis_json = {"entradas_vendidas": 0, "ingresos": 0, "ocupacion_media": 0, "total_cancelaciones": 0}
 
-        # 3. Transformamos los datos (la variable ya es un diccionario/lista de Python, no hace falta .json())
+        # Transformamos los datos (la variable ya es un diccionario/lista de Python, no hace falta .json())
         datos_funciones = []
         if isinstance(funciones_json, list):
             for f in funciones_json:
@@ -274,26 +278,36 @@ def dashboard():
         if isinstance(generos_json, list):
             datos_generos = [[g.get('genero', 'Otro'), float(g.get('cantidad_entradas', 0))] for g in generos_json]
 
-        # 4. Cálculo de cancelaciones
+        # Cálculo de cancelaciones
         total_cancelaciones = 0
         if isinstance(cancelaciones_json, list):
             for item in cancelaciones_json:
                 if isinstance(item, dict):
                     total_cancelaciones += item.get('cantidad', 0)
 
-        # 5. Armamos el diccionario "est" final
+        
+        total_entradas = kpis_json.get('entradas_vendidas', 0)
+        total_cancel = kpis_json.get('total_cancelaciones', 0)
+
+        plata = kpis_json.get('ingresos', 0) 
+        ingresos_formato = f"${plata:,.0f}".replace(",", ".")
+
+        porcentaje_cancelado = 0
+        if total_entradas > 0:
+            porcentaje_cancelado = round((total_cancel / total_entradas) * 100, 1)
+
         est = {
             "kpis": [
-                {"nombre": "Entradas vendidas", "valor": "1.284"},
-                {"nombre": "Ingresos", "valor": "$8,4 M"},
-                {"nombre": "Ocupación media", "valor": "74 %"},
-                {"nombre": "Cancelaciones", "valor": str(total_cancelaciones)}
+                {"nombre": "Entradas vendidas", "valor": str(total_entradas)},
+                {"nombre": "Ingresos", "valor": ingresos_formato},
+                {"nombre": "Ocupación media", "valor": f"{kpis_json.get('ocupacion_media', 0):.0f} %"},
+                {"nombre": "Cancelaciones", "valor": str(total_cancel)}
             ],
             "ocupacion_funcion": datos_funciones,
             "ocupacion_pelicula": datos_peliculas,
             "franjas": datos_franjas,
             "ventas_genero": datos_generos,
-            "cancelaciones": {"total": total_cancelaciones, "porcentaje": "4.2"}
+            "cancelaciones": {"total": total_cancel, "porcentaje": str(porcentaje_cancelado)}
         }
 
     except Exception as e:
