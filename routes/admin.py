@@ -240,7 +240,7 @@ def baja_servicio(servicio_id):
 @admin_bp.route("/backoffice")
 def dashboard():
     try:
-        # 1. Llamamos a la API y DESEMPAQUETAMOS la tupla (datos, status_code)
+        # Llamamos a la API y DESEMPAQUETAMOS la tupla
         funciones_json, status_f = llamar_api("GET", "/admin/estadisticas/ocupacion/funciones")
         peliculas_json, status_p = llamar_api("GET", "/admin/estadisticas/ocupacion/peliculas")
         franjas_json, status_fr = llamar_api("GET", "/admin/estadisticas/franjas_horarias")
@@ -258,7 +258,7 @@ def dashboard():
         if status_k != 200 or not kpis_json:
             kpis_json = {"entradas_vendidas": 0, "ingresos": 0, "ocupacion_media": 0, "total_cancelaciones": 0}
 
-        # Transformamos los datos (la variable ya es un diccionario/lista de Python, no hace falta .json())
+        # Transformamos los datos
         datos_funciones = []
         if isinstance(funciones_json, list):
             for f in funciones_json:
@@ -361,3 +361,24 @@ def guardar_funcion():
         return redirect(url_for("admin.funciones"))
 
     return responder_error_api(resultado, estado)
+
+@admin_bp.route("/escaner", methods=["GET", "POST"])
+def escaner_qr():
+    resultado = None
+    
+    if request.method == "POST":
+        qr_codigo = request.form.get("qr_codigo")
+        
+        
+        resultado, status = llamar_api(
+            "POST", 
+            "/admin/entradas/validar_qr", 
+            datos={"qr_codigo": qr_codigo}
+        )
+        
+        
+        if status != 200:
+            return responder_error_api(resultado, status)
+
+    
+    return render_template("admin/escaner.html", resultado=resultado)

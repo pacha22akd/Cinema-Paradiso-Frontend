@@ -1,0 +1,44 @@
+{% extends 'admin/admin_base.html' %}
+{% block title %}Escanear Entrada{% endblock %}
+{% block admin_content %}
+<h1>Escanear Entrada</h1>
+
+{% if resultado %}
+    
+    <div class="panel panel-grande" style="margin-bottom: 1.5rem; text-align: center;">
+        {% if resultado.valida %}
+            <h3 style="color: #4ade80; margin-bottom: 1rem;"> ENTRADA VÁLIDA</h3>
+            <div class="datos" style="grid-template-columns: 6rem 1fr; text-align: left; display: inline-block;">
+                <dt>Película:</dt> <dd>{{ resultado.detalles.pelicula }}</dd>
+                <dt>Sala:</dt> <dd>{{ resultado.detalles.sala }}</dd>
+                <dt>Horario:</dt> <dd>{{ resultado.detalles.hora }}</dd>
+                <dt>Butaca:</dt> <dd>{{ resultado.detalles.butaca }}</dd>
+            </div>
+        {% else %}
+            <h3 class="texto-rojo" style="margin-bottom: 0.5rem;"> ENTRADA INVÁLIDA</h3>
+            <p style="margin: 0;">{{ resultado.motivo }}</p>
+        {% endif %}
+        
+        
+        <div style="margin-top: 1.5rem;">
+            <a href="{{ url_for('admin.escaner_qr') }}" class="boton boton-rojo">Escanear otra entrada</a>
+        </div>
+    </div>
+
+{% else %}
+    
+    <div class="panel panel-grande" style="margin-bottom: 1.5rem">
+        <h3>Escanear código QR</h3>
+        <p class="chico tenue" style="margin-bottom: 1rem"></p>
+        
+        <div id="reader" style="max-width: 500px; margin: 0 auto; border-radius: 0.5rem; overflow: hidden;"></div>
+        
+        <form id="formQR" method="POST" action="{{ url_for('admin.escaner_qr') }}">
+            <input type="hidden" name="qr_codigo" id="qr_codigo_input">
+        </form>
+    </div>
+{% endif %}
+
+<!-- Libreria del codigo QR -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+{% endblock %}

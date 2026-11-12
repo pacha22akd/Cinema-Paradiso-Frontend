@@ -124,7 +124,39 @@
       });
     });
   }
+  function iniciarEscanerQR() {
+    const readerDiv = document.getElementById("reader");
+    
+    // Si no estamos en la página del escáner, no hacemos nada
+    if (!readerDiv) return; 
 
+    const html5QrCode = new Html5Qrcode("reader");
+    let escaneando = true;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        if (!escaneando) return; 
+        escaneando = false;
+
+        // Ponemos el texto del QR en el input oculto
+        document.getElementById('qr_codigo_input').value = decodedText;
+        
+        // Enviamos el formulario automáticamente al servidor Flask
+        document.getElementById('formQR').submit();
+    }
+
+    Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length) {
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: 250 },
+                onScanSuccess
+            );
+        }
+    }).catch(err => {
+        readerDiv.innerHTML = "<p class='chico texto-rojo'>No se pudo acceder a la cámara. Verificá los permisos del navegador.</p>";
+    });
+  }
+  
   //Cuando la página termina de cargar, activamos todo
   document.addEventListener("DOMContentLoaded", function () {
     iniciarMenu();
@@ -134,5 +166,6 @@
     iniciarButacas();
     iniciarTotalEnVivo();
     iniciarConfirmaciones();
+    iniciarEscanerQR(); 
   });
 })();

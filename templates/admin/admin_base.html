@@ -9,6 +9,7 @@
       <a class="{% if request.endpoint == 'admin.peliculas' %}activo{% endif %}" href="{{ url_for('admin.peliculas') }}">Películas</a>
       <a class="{% if request.endpoint == 'admin.funciones' %}activo{% endif %}" href="{{ url_for('admin.funciones') }}">Funciones</a>
       <a class="{% if request.endpoint == 'admin.servicios' %}activo{% endif %}" href="{{ url_for('admin.servicios') }}">Servicios</a>
+      <a class="{% if request.endpoint == 'admin.escaner_qr' %}activo{% endif %}" href="{{ url_for('admin.escaner_qr') }}">Escanear QR</a>
     </aside>
     <div class="admin-contenido">
       {% include 'components/mensajes.html' %}
