@@ -6,22 +6,41 @@
 <form method="GET" action="{{ url_for('compra.confirmacion', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id) }}" data-total="{{ resumen.subtotal_entradas }}">
   {% set omitir = ['srv_'] %}
   {% include 'components/estado_compra.html' %}
+  
   <div class="grilla-2">
     {% for s in servicios %}
       <div class="panel servicio-card">
-        <div>
-          <span class="insignia">{{ s.categoria }}</span>
-          <div><strong>{{ s.nombre }}</strong></div>
-          {% if s.descripcion %}<div class="chico tenue">{{ s.descripcion }}</div>{% endif %}
-          <div class="chico tenue">{{ s.precio|precio }}</div>
+        
+        <!-- ⚠️ IMAGEN DEL SERVICIO -->
+        <div class="servicio-imagen">
+          <!-- Si la imagen_url existe, la muestra. Si no, muestra un placeholder gris -->
+          {% if s.imagen_url %}
+            <img src="{{ s.imagen_url }}" alt="{{ s.nombre }}">
+          {% else %}
+            <div class="servicio-imagen-placeholder">Sin imagen</div>
+          {% endif %}
         </div>
-        <input class="cantidad" type="number" name="srv_{{ s.id }}" min="0" data-precio="{{ s.precio }}"
-               value="{{ resumen.cantidades.get(s.id, 0) }}" aria-label="Cantidad {{ s.nombre }}">
+
+        <!-- CONTENIDO DEL SERVICIO -->
+        <div class="servicio-info">
+          <div>
+            <span class="insignia">{{ s.categoria }}</span>
+            <div style="margin-top: 0.3rem;"><strong>{{ s.nombre }}</strong></div>
+            {% if s.descripcion %}<div class="chico tenue">{{ s.descripcion }}</div>{% endif %}
+            <div class="chico tenue" style="margin-top: 0.3rem; font-weight: bold;">{{ s.precio|precio }}</div>
+          </div>
+          
+          <!-- INPUT DE CANTIDAD -->
+          <input class="cantidad" type="number" name="srv_{{ s.id }}" min="0" data-precio="{{ s.precio }}"
+                 value="{{ resumen.cantidades.get(s.id, 0) }}" aria-label="Cantidad {{ s.nombre }}">
+        </div>
+
       </div>
     {% else %}
       <div class="panel"><p class="tenue" style="margin:0">Por ahora no hay servicios disponibles.</p></div>
     {% endfor %}
   </div>
+  
   <p class="total-vivo">Total: <strong data-total-salida>$0</strong></p>
   <div class="acciones">
     <a class="boton boton-claro" href="{{ url_for('compra.butacas', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id, **resumen.parametros) }}">← Volver</a>

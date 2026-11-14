@@ -3,7 +3,7 @@
 {% block content %}
 <div class="layout-perfil">
   <div class="panel panel-grande texto-centro">
-    {% include 'components/icono_usuario.html' %}
+    <img src="{{ url_for('static', filename='images/icono_usuario.png') }}" class="icono-usuario">
     <h2 style="margin-top:.5rem">{{ perfil.datos_personales.nombre }} {{ perfil.datos_personales.apellido }}</h2>
     <p class="tenue">{{ perfil.datos_personales.email }}</p>
     <div class="chico tenue" style="margin-bottom: 1.5rem;">
@@ -25,11 +25,11 @@
         <tbody>
         {% for h in historial %}
           <tr>
-            <td>{{ h.funcion.pelicula }}</td><td>{{ h.funcion.local }}</td>
-            <td>{{ h.funcion.fecha }} {{ h.funcion.hora_inicio }}</td>
-            <td>${{ h.total|int }}</td>
+            <td data-label="Película">{{ h.funcion.pelicula }}</td><td data-label="Cine">{{ h.funcion.local }}</td>
+            <td data-label="Fecha">{{ h.funcion.fecha }} {{ h.funcion.hora_inicio }}</td>
+            <td data-label="Total">${{ h.total|int }}</td>
             <td>{% if h.estado == 'usada' or h.estado == 'pagada' %}<span class="insignia insignia-verde">{{ h.estado|capitalize }}</span>{% else %}<span class="insignia insignia-roja">{{ h.estado|capitalize }}</span>{% endif %}</td>
-            <td>
+            <td data-label="Estado">
               {% if h.estado == 'pagada' %}
                 <div class="celda-acciones">
                   <form method="POST" action="{{ url_for('publico.reenviar_mail', compra_id=h.id) }}">

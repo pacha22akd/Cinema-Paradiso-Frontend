@@ -1,6 +1,6 @@
 <header class="barra-nav">
   <div class="contenedor barra-nav-interior">
-    <a class="logo" href="{{ url_for('publico.cartelera') }}">{% include 'components/icono_logo.html' %} Cine Paradiso</a>
+    <a class="logo" href="{{ url_for('publico.cartelera') }}"><img src="{{ url_for('static', filename='images/icono_cine.png') }}" class="icono-cine"> Cine Paradiso</a>
 
     <button type="button" class="hamburguesa" id="boton-menu" aria-label="Abrir menú" aria-expanded="false">☰</button>
 
@@ -18,14 +18,14 @@
     <a href="{{ url_for('publico.logout') }}" class="boton boton-rojo boton-chico">Salir</a>
 
     <a href="{{ url_for('publico.perfil') }}" class="perfil-usuario" aria-label="Mi perfil">
-      {% include 'components/icono_usuario.html' %}
+      <img src="{{ url_for('static', filename='images/icono_usuario.png') }}">
       <span class="chico tenue">{{ session.get('usuario_nombre') }}</span>
     </a>
 
   {% else %}
     <a class="boton boton-rojo boton-chico" href="{{ url_for('publico.login') }}">Ingresar</a>
     <a href="{{ url_for('publico.login') }}" class="perfil-usuario" aria-label="Ingresar">
-      {% include 'components/icono_usuario.html' %}
+      <img src="{{ url_for('static', filename='images/icono_usuario.png') }}">
     </a>
   {% endif %}
 </div>
