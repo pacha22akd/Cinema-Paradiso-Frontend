@@ -28,7 +28,7 @@
             <td data-label="Película">{{ h.funcion.pelicula }}</td><td data-label="Cine">{{ h.funcion.local }}</td>
             <td data-label="Fecha">{{ h.funcion.fecha }} {{ h.funcion.hora_inicio }}</td>
             <td data-label="Total">${{ h.total|int }}</td>
-            <td>{% if h.estado == 'usada' or h.estado == 'pagada' %}<span class="insignia insignia-verde">{{ h.estado|capitalize }}</span>{% else %}<span class="insignia insignia-roja">{{ h.estado|capitalize }}</span>{% endif %}</td>
+            <td>{% if h.estado == 'pagada' %}<span class="insignia insignia-verde">{{ h.estado|capitalize }}</span>{% elif h.estado == 'usada' %}<span class="insignia">{{ h.estado|capitalize }}</span>{% else %}<span class="insignia insignia-roja">{{ h.estado|capitalize }}</span>{% endif %}</td>
             <td data-label="Estado">
               {% if h.estado == 'pagada' %}
                 <div class="celda-acciones">
