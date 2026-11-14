@@ -1,8 +1,5 @@
-# Flujo de compra: horario -> entradas -> butacas -> comida -> confirmación -> pago -> éxito.
 from datetime import datetime
-
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-
 from services.api import llamar_api
 from services.auth import revisar_login
 
@@ -87,18 +84,14 @@ def get_compra(compra_id):
     return compra, estado
 
 
-# RUTAS DEL FLUJO DE COMPRA
-
 @compra_bp.before_request
 def proteger():
-    # Se ejecuta antes de CUALQUIER ruta de compra: hay que estar logueado
     return revisar_login()
 
 
 def manejar_error(mensaje, estado):
     """Devuelve la respuesta que corresponde cuando el backend contestó con un error"""
     if estado == 401:
-        # el token venció o no existe: hay que volver a loguearse
         session.clear()
         flash("Tu sesión expiró. Iniciá sesión nuevamente.", "warning")
         return redirect(url_for("publico.login"))
@@ -206,9 +199,6 @@ def revisar_cantidad(contexto):
 
 
 def revisar_butacas(contexto):
-    """Devuelve None si hay elegida exactamente una butaca disponible por entrada;
-    si no, manda al usuario de vuelta al mapa de butacas. Si alguna butaca elegida se ocupó
-    mientras tanto, armar_resumen ya la descartó y cae por acá."""
     respuesta = revisar_cantidad(contexto)
     if respuesta is not None:
         return respuesta
@@ -314,8 +304,6 @@ def validar_tarjeta(form):
 
 
 def fallar_compra(compra_id, mensaje, estado):
-    """Algo falló después de crear la compra. Devuelve lo mismo que registrar_compra:
-    (None, False, (mensaje, estado))."""
     if estado == 503:
         mensaje = ("No pudimos confirmar si tu pago se completó. Revisá tus entradas en tu "
                    "perfil antes de volver a intentar.")
@@ -367,11 +355,11 @@ def pago(pelicula_id, funcion_id):
                 mensaje, estado = error
                 if estado != 409:
                     return manejar_error(mensaje, estado)
-                # 409 = conflicto: alguien se quedó con una butaca, la función ya empezó, etc.
+                
                 flash(mensaje, "danger")
                 return redirect(url_for("compra.butacas", pelicula_id=pelicula_id, funcion_id=funcion_id,
                                         cantidad=contexto["resumen"]["cantidad_entradas"]))
-            # mail=0 solo se agrega si el mail con el QR no se pudo enviar
+            
             if email_enviado:
                 return redirect(url_for("compra.exito", compra_id=compra_id))
             return redirect(url_for("compra.exito", compra_id=compra_id, mail=0))

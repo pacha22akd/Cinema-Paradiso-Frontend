@@ -6,19 +6,16 @@
 {% set elegidas = resumen.butacas|map(attribute='id')|list %}
 <form method="GET" action="{{ url_for('compra.comida', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id) }}"
       data-max-butacas="{{ resumen.cantidad_entradas }}">
-  {# Reenvía la cantidad y la comida ya elegidas, las butacas se omiten porque se eligen acá #}
   {% set omitir = ['butacas'] %}
   {% include 'components/estado_compra.html' %}
   <div class="panel panel-grande">
     <div class="pantalla"></div>
     <div class="texto-centro chico tenue" style="margin-bottom:1rem">PANTALLA</div>
     <div class="mapa">
-      {# butacas_sala viene del backend como lista plana; groupby('fila') la agrupa: A -> [A1, A2...], B -> [...] #}
       {% for fila, butacas_fila in butacas_sala|groupby('fila') %}
         <div class="fila"><span class="fila-letra">{{ fila }}</span>
           {% for b in butacas_fila %}
             <label class="butaca" title="{{ fila }}{{ b.numero }}">
-              {# value = id de la butaca en la base de datos: es lo que después se le manda al backend #}
               <input type="checkbox" name="butacas" value="{{ b.butaca_id }}"
                      {% if b.estado_disponibilidad == 'ocupada' %}disabled{% endif %}
                      {% if b.butaca_id in elegidas %}checked{% endif %}>

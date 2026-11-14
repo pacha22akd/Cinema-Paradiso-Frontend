@@ -10,7 +10,6 @@ API_URL = os.environ["API_URL"].rstrip("/")
 
 
 def encabezado_auth():
-    # El backend identifica al usuario por el token que se guarda en la sesión al hacer login
     token = session.get("token")
 
     if token:

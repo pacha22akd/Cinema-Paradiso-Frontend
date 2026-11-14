@@ -1,4 +1,3 @@
-{# Requiere la variable `p` (película) #}
 <a class="poster-card" href="{{ url_for('publico.pelicula', pelicula_id=p.id) }}">
   <div class="poster-wrap">
     <img src="{{ p.poster_url }}" alt="Póster de {{ p.titulo }}" loading="lazy">

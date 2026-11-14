@@ -1,4 +1,3 @@
-# Pantallas públicas: cartelera, detalle de película, login y perfil.
 import unicodedata
 from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 from services.auth import revisar_login
@@ -54,8 +53,7 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-
-        # La nueva función devuelve (datos, status_code)
+        
         respuesta, status_code = llamar_api(
             metodo="POST", 
             endpoint="/sesiones", 
@@ -63,7 +61,6 @@ def login():
         )
 
         if status_code == 200:
-            # 'respuesta' ahora ya es el diccionario con los datos, no hace falta .json()
             session['token'] = respuesta['token']
             session['usuario_nombre'] = respuesta['usuario']['nombre']
             session['usuario_id'] = respuesta['usuario']['id']
@@ -80,7 +77,6 @@ def login():
             return redirect(url_for('publico.cartelera'))
             
         else:
-            # Si falla, 'respuesta' ya es el string con el mensaje de error
             flash(respuesta, 'error')
 
     return render_template('login.html')
@@ -106,12 +102,10 @@ def perfil():
         flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
         return redirect(url_for('publico.login'))
 
-    # 'respuesta_compras' ya es un dict, accedemos directo a 'data'
     historial = respuesta_compras["data"]
 
     vistas = sum(1 for compra in historial if compra["estado"] == "usada")
 
-    # 'respuesta_perfil' ya es un dict
     return render_template('perfil.html', perfil=respuesta_perfil, historial=historial, vistas=vistas)
 
 @publico_bp.route("/perfil/compras/<int:compra_id>/reenviar_mail", methods=["POST"])
@@ -125,7 +119,7 @@ def reenviar_mail(compra_id):
     if status == 200:
         flash("Te reenviamos el mail con tus entradas.", "success")
     else:
-        flash(respuesta, "danger") # 'respuesta' ya es el mensaje de error
+        flash(respuesta, "danger")
 
     return redirect(url_for("publico.perfil"))
 
@@ -168,7 +162,7 @@ def editar_perfil():
             flash("Tus datos se actualizaron correctamente.", "success")
             return redirect(url_for("publico.perfil"))
 
-        flash(respuesta_api, "danger") # 'respuesta_api' es el mensaje de error
+        flash(respuesta_api, "danger") 
         return render_template("editar_perfil.html", usuario=datos)
 
     # GET

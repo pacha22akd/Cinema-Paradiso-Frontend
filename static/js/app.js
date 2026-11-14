@@ -1,7 +1,6 @@
 (function () {
   "use strict";
 
-  //Menú de celular: el botón ☰ abre y cierra el menú
   function iniciarMenu() {
     const boton = document.getElementById("boton-menu");
     const menu = document.getElementById("menu-principal");
@@ -14,7 +13,6 @@
     });
   }
 
-  //El selector de cines (de la barra superior) se cierra al hacer click afuera
   function iniciarDesplegables() {
     document.addEventListener("click", function (evento) {
       const abiertos = document.querySelectorAll(".desplegable[open]");
@@ -26,7 +24,6 @@
     });
   }
 
-  //Carruseles: las flechas ‹ › mueven el carrusel
   function iniciarCarruseles() {
     const cajas = document.querySelectorAll("[data-carrusel]");
     cajas.forEach(function (caja) {
@@ -43,7 +40,6 @@
     });
   }
 
-  //Login: botón para mostrar u ocultar la contraseña
   function iniciarMostrarPassword() {
     const botones = document.querySelectorAll("[data-mostrar-password]");
     botones.forEach(function (boton) {
@@ -56,7 +52,6 @@
     });
   }
 
-  //Butacas: hay que elegir exactamente tantas como entradas (data-max-butacas), y se cuenta cuántas van
   function iniciarButacas() {
     const formulario = document.querySelector("[data-max-butacas]");
     if (!formulario) {
@@ -74,13 +69,13 @@
     function actualizar() {
       const elegidas = contarElegidas();
       contador.textContent = "Elegidas: " + elegidas + " de " + maximo;
-      continuar.disabled = elegidas !== maximo;  // hasta completar todas las butacas no se puede seguir
+      continuar.disabled = elegidas !== maximo;  
     }
 
     checkboxes.forEach(function (checkbox) {
       checkbox.addEventListener("change", function () {
         if (contarElegidas() > maximo) {
-          checkbox.checked = false;  // se pasó del máximo: desmarcamos la última
+          checkbox.checked = false;  
         }
         actualizar();
       });
@@ -89,7 +84,6 @@
     actualizar();
   }
 
-  //Total en vivo: suma cantidad x precio mientras el usuario cambia los números
   function iniciarTotalEnVivo() {
     const formularios = document.querySelectorAll("[data-total]");
     formularios.forEach(function (formulario) {
@@ -113,13 +107,12 @@
     });
   }
 
-  //Formularios con pregunta de confirmación (por ejemplo, cancelar una entrada)
   function iniciarConfirmaciones() {
     const formularios = document.querySelectorAll("form[data-confirmar]");
     formularios.forEach(function (formulario) {
       formulario.addEventListener("submit", function (evento) {
         if (!window.confirm(formulario.dataset.confirmar)) {
-          evento.preventDefault();  // si dice que no, el formulario no se envía
+          evento.preventDefault();  
         }
       });
     });
@@ -127,7 +120,6 @@
   function iniciarEscanerQR() {
     const readerDiv = document.getElementById("reader");
     
-    // Si no estamos en la página del escáner, no hacemos nada
     if (!readerDiv) return; 
 
     const html5QrCode = new Html5Qrcode("reader");
@@ -137,10 +129,8 @@
         if (!escaneando) return; 
         escaneando = false;
 
-        // Ponemos el texto del QR en el input oculto
         document.getElementById('qr_codigo_input').value = decodedText;
         
-        // Enviamos el formulario automáticamente al servidor Flask
         document.getElementById('formQR').submit();
     }
 
@@ -157,7 +147,6 @@
     });
   }
   
-  //Cuando la página termina de cargar, activamos todo
   document.addEventListener("DOMContentLoaded", function () {
     iniciarMenu();
     iniciarDesplegables();

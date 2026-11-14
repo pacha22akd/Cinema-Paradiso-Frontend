@@ -3,7 +3,6 @@
 {% block title %}Comida y servicios{% endblock %}
 {% block paso %}
 <h2>Sumá comida, bebida y servicios</h2>
-{# base del total en vivo: lo que ya valen las entradas. El JS le suma cantidad x precio de cada servicio #}
 <form method="GET" action="{{ url_for('compra.confirmacion', pelicula_id=pelicula.id, funcion_id=funcion.funcion_id) }}" data-total="{{ resumen.subtotal_entradas }}">
   {% set omitir = ['srv_'] %}
   {% include 'components/estado_compra.html' %}

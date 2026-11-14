@@ -7,7 +7,6 @@
   {% if mail_enviado %}
     <p class="tenue">Te enviamos la factura y el QR de ingreso de cada entrada a {{ session.usuario_email }}.</p>
   {% else %}
-    {# El pago salió bien pero el backend no pudo mandar el mail #}
     <p class="tenue">Tu compra se pagó correctamente, pero no pudimos enviar el mail con la factura y los QR.
       Guardá tu código de compra: <strong>{{ compra.codigo }}</strong>.</p>
   {% endif %}

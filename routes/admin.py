@@ -1,15 +1,11 @@
-# Backoffice del administrador. Todas las rutas de acá empiezan con /admin.
-import requests
-from flask import Blueprint, redirect, render_template, request, session, url_for, current_app
+from flask import Blueprint, redirect, render_template, request, session, url_for
 from services.api import llamar_api 
-from services import mock_data
 from services.auth import revisar_admin
 
 admin_bp = Blueprint("admin", __name__)
 
 @admin_bp.before_request
 def proteger():
-    # Se ejecuta antes de CUALQUIER ruta de admin: hay que ser administrador
     return revisar_admin()
 
 def responder_error_api(mensaje, estado):
@@ -240,7 +236,6 @@ def baja_servicio(servicio_id):
 @admin_bp.route("/backoffice")
 def dashboard():
     try:
-        # Llamamos a la API y DESEMPAQUETAMOS la tupla
         funciones_json, status_f = llamar_api("GET", "/admin/estadisticas/ocupacion/funciones")
         peliculas_json, status_p = llamar_api("GET", "/admin/estadisticas/ocupacion/peliculas")
         franjas_json, status_fr = llamar_api("GET", "/admin/estadisticas/franjas_horarias")
@@ -258,7 +253,6 @@ def dashboard():
         if status_k != 200 or not kpis_json:
             kpis_json = {"entradas_vendidas": 0, "ingresos": 0, "ocupacion_media": 0, "total_cancelaciones": 0}
 
-        # Transformamos los datos
         datos_funciones = []
         if isinstance(funciones_json, list):
             for f in funciones_json:
@@ -278,7 +272,6 @@ def dashboard():
         if isinstance(generos_json, list):
             datos_generos = [[g.get('genero', 'Otro'), float(g.get('cantidad_entradas', 0))] for g in generos_json]
 
-        # Cálculo de cancelaciones
         total_cancelaciones = 0
         if isinstance(cancelaciones_json, list):
             for item in cancelaciones_json:

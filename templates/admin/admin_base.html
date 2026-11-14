@@ -1,10 +1,8 @@
-
 {% extends 'base.html' %}
 {% block main %}
 <div class="contenedor">
   <div class="admin-layout">
     <aside class="admin-menu">
-      {# request.endpoint es el nombre de la ruta actual; sirve para marcar el link activo #}
       <a class="{% if request.endpoint == 'admin.dashboard' %}activo{% endif %}" href="{{ url_for('admin.dashboard') }}">Dashboard</a>
       <a class="{% if request.endpoint == 'admin.peliculas' %}activo{% endif %}" href="{{ url_for('admin.peliculas') }}">Películas</a>
       <a class="{% if request.endpoint == 'admin.funciones' %}activo{% endif %}" href="{{ url_for('admin.funciones') }}">Funciones</a>
