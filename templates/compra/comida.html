@@ -11,9 +11,7 @@
     {% for s in servicios %}
       <div class="panel servicio-card">
         
-        <!-- ⚠️ IMAGEN DEL SERVICIO -->
         <div class="servicio-imagen">
-          <!-- Si la imagen_url existe, la muestra. Si no, muestra un placeholder gris -->
           {% if s.imagen_url %}
             <img src="{{ s.imagen_url }}" alt="{{ s.nombre }}">
           {% else %}
@@ -21,7 +19,6 @@
           {% endif %}
         </div>
 
-        <!-- CONTENIDO DEL SERVICIO -->
         <div class="servicio-info">
           <div>
             <span class="insignia">{{ s.categoria }}</span>
@@ -30,7 +27,6 @@
             <div class="chico tenue" style="margin-top: 0.3rem; font-weight: bold;">{{ s.precio|precio }}</div>
           </div>
           
-          <!-- INPUT DE CANTIDAD -->
           <input class="cantidad" type="number" name="srv_{{ s.id }}" min="0" data-precio="{{ s.precio }}"
                  value="{{ resumen.cantidades.get(s.id, 0) }}" aria-label="Cantidad {{ s.nombre }}">
         </div>
