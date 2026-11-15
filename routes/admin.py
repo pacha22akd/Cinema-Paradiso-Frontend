@@ -356,23 +356,32 @@ def guardar_funcion():
 
     return responder_error_api(resultado, estado)
 
+
 @admin_bp.route("/escaner", methods=["GET", "POST"])
 def escaner_qr():
     resultado = None
-    
+    tipo_qr = "entradas"
+
     if request.method == "POST":
-        qr_codigo = request.form.get("qr_codigo")
-        
-        
+        qr_codigo = request.form.get("qr_codigo", "").strip()
+
+        if qr_codigo.startswith("QR-SERV-"):
+            tipo_qr = "servicios"
+            endpoint = "/admin/servicios/validar_qr"
+        else:
+            endpoint = "/admin/entradas/validar_qr"
+
         resultado, status = llamar_api(
-            "POST", 
-            "/admin/entradas/validar_qr", 
+            "POST",
+            endpoint,
             datos={"qr_codigo": qr_codigo}
         )
-        
-        
+
         if status != 200:
             return responder_error_api(resultado, status)
 
-    
-    return render_template("admin/escaner.html", resultado=resultado)
+    return render_template(
+        "admin/escaner.html",
+        resultado=resultado,
+        tipo_qr=tipo_qr
+    )
