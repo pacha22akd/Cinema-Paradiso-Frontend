@@ -241,7 +241,7 @@ def dashboard():
         franjas_json, status_fr = llamar_api("GET", "/admin/estadisticas/franjas_horarias")
         generos_json, status_g = llamar_api("GET", "/admin/estadisticas/ventas_genero")
         cancelaciones_json, status_c = llamar_api("GET", "/admin/estadisticas/cancelaciones")
-        kpis_json, status_k = llamar_api("GET", "/admin/estadisticas/kpis")
+        estadisticas_relevantes_json, status_k = llamar_api("GET", "/admin/estadisticas/estadisticas_relevantes")
 
       
         if status_f != 200: funciones_json = []
@@ -250,8 +250,8 @@ def dashboard():
         if status_g != 200: generos_json = []
         if status_c != 200: cancelaciones_json = []
         
-        if status_k != 200 or not kpis_json:
-            kpis_json = {"entradas_vendidas": 0, "ingresos": 0, "ocupacion_media": 0, "total_cancelaciones": 0}
+        if status_k != 200 or not estadisticas_relevantes_json:
+            estadisticas_relevantes_json = {"entradas_vendidas": 0, "ingresos": 0, "ocupacion_media": 0, "total_cancelaciones": 0}
 
         datos_funciones = []
         if isinstance(funciones_json, list):
@@ -279,10 +279,10 @@ def dashboard():
                     total_cancelaciones += item.get('cantidad', 0)
 
         
-        total_entradas = kpis_json.get('entradas_vendidas', 0)
-        total_cancel = kpis_json.get('total_cancelaciones', 0)
+        total_entradas = estadisticas_relevantes_json.get('entradas_vendidas', 0)
+        total_cancel = estadisticas_relevantes_json.get('total_cancelaciones', 0)
 
-        plata = kpis_json.get('ingresos', 0) 
+        plata = estadisticas_relevantes_json.get('ingresos', 0) 
         ingresos_formato = f"${plata:,.0f}".replace(",", ".")
 
         porcentaje_cancelado = 0
@@ -290,10 +290,10 @@ def dashboard():
             porcentaje_cancelado = round((total_cancel / total_entradas) * 100, 1)
 
         est = {
-            "kpis": [
+            "estadisticas_relevantes": [
                 {"nombre": "Entradas vendidas", "valor": str(total_entradas)},
                 {"nombre": "Ingresos", "valor": ingresos_formato},
-                {"nombre": "Ocupación media", "valor": f"{kpis_json.get('ocupacion_media', 0):.0f} %"},
+                {"nombre": "Ocupación media", "valor": f"{estadisticas_relevantes_json.get('ocupacion_media', 0):.0f} %"},
                 {"nombre": "Cancelaciones", "valor": str(total_cancel)}
             ],
             "ocupacion_funcion": datos_funciones,
@@ -306,7 +306,8 @@ def dashboard():
     except Exception as e:
         print(f"Error general conectando con el Backend: {e}")
         est = {
-            "kpis": [], "ocupacion_funcion": [], "ocupacion_pelicula": [],
+            "estadisticas_relevantes": [],
+            "ocupacion_funcion": [], "ocupacion_pelicula": [],
             "franjas": [], "ventas_genero": [], "cancelaciones": {"total": 0, "porcentaje": 0}
         }
 

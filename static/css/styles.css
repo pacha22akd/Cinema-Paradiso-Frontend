@@ -238,7 +238,7 @@ th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; opacit
 .admin-menu a { display: block; padding: .5rem .75rem; border-radius: .5rem; color: var(--crema); margin-bottom: .25rem; }
 .admin-menu a:hover, .admin-menu a.activo { background: var(--rojo); color: #fff; }
 .admin-contenido { padding: 1.5rem 0 1.5rem 1.5rem; }
-.kpi { font-family: var(--fuente-titulo); font-size: 2.4rem; line-height: 1; }
+.estadisticas_relevantes { font-family: var(--fuente-titulo); font-size: 2.4rem; line-height: 1; }
 .barra { height: .6rem; background: rgba(255, 255, 255, .1); border-radius: 1rem; overflow: hidden; }
 .barra > div { height: 100%; background: var(--rojo); }
 .item-barra { margin-bottom: .6rem; }

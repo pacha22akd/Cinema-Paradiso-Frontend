@@ -3,10 +3,10 @@
 {% block admin_content %}
 <h1>Dashboard</h1>
 <div class="grilla-4" style="margin-bottom:1rem">
-  {% for kpi in est.kpis %}
+  {% for estadistica in est.estadisticas_relevantes %}
     <div class="panel">
-        <div class="kpi">{{ kpi.valor }}</div>
-        <span class="chico tenue">{{ kpi.nombre }}</span>
+        <div class="estadisticas_relevantes">{{ estadistica.valor }}</div>
+        <span class="chico tenue">{{ estadistica.nombre }}</span>
     </div>
   {% endfor %}
 </div>
