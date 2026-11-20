@@ -90,7 +90,6 @@ def proteger():
 
 
 def manejar_error(mensaje, estado):
-    """Devuelve la respuesta que corresponde cuando el backend contestó con un error"""
     if estado == 401:
         session.clear()
         flash("Tu sesión expiró. Iniciá sesión nuevamente.", "warning")

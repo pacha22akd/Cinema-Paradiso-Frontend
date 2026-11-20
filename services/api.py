@@ -19,7 +19,6 @@ def encabezado_auth():
 
 
 def sacar_mensaje(respuesta):
-    """Busca el texto del error en la respuesta del backend"""
     try:
         cuerpo = respuesta.json()
     except ValueError:

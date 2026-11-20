@@ -13,17 +13,6 @@
     });
   }
 
-  function iniciarDesplegables() {
-    document.addEventListener("click", function (evento) {
-      const abiertos = document.querySelectorAll(".desplegable[open]");
-      abiertos.forEach(function (desplegable) {
-        if (!desplegable.contains(evento.target)) {
-          desplegable.removeAttribute("open");
-        }
-      });
-    });
-  }
-
   function iniciarCarruseles() {
     const cajas = document.querySelectorAll("[data-carrusel]");
     cajas.forEach(function (caja) {
@@ -149,7 +138,6 @@
   
   document.addEventListener("DOMContentLoaded", function () {
     iniciarMenu();
-    iniciarDesplegables();
     iniciarCarruseles();
     iniciarMostrarPassword();
     iniciarButacas();
