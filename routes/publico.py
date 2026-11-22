@@ -174,7 +174,7 @@ def editar_perfil():
         flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
         return redirect(url_for("publico.login"))
 
-    return render_template("editar_perfil.html", usuario=respuesta_api["datos_personales"])
+    return render_template("editar_perfil.html", usuario=respuesta_api["data"]["datos_personales"])
 
 @publico_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
