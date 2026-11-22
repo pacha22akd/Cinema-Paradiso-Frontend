@@ -11,7 +11,7 @@ def cartelera():
     peliculas, estado = llamar_api("GET", "/peliculas")
     if estado != 200:
         flash("No se pudo cargar la cartelera. Por favor, intentá de nuevo más tarde.", "error")
-        peliculas = []  # Forzamos lista vacía si hubo error
+        peliculas = []  
     return render_template("index.html", peliculas=peliculas)
 
 def sin_acentos(texto):
@@ -61,11 +61,13 @@ def login():
         )
 
         if status_code == 200:
-            session['token'] = respuesta['token']
-            session['usuario_nombre'] = respuesta['usuario']['nombre']
-            session['usuario_id'] = respuesta['usuario']['id']
-            session['rol'] = respuesta['usuario']['rol']
-            session['usuario_email'] = respuesta['usuario']['email']
+            data = respuesta['data']
+            usuario = data['usuario']
+            session['token'] = data['token']
+            session['usuario_nombre'] = usuario['nombre']
+            session['usuario_id'] = usuario['id']
+            session['rol'] = usuario['rol']
+            session['usuario_email'] = usuario['email']
 
             next_page = request.args.get('next')
             if next_page:
@@ -102,11 +104,12 @@ def perfil():
         flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
         return redirect(url_for('publico.login'))
 
+    perfil = respuesta_perfil['data']
     historial = respuesta_compras["data"]
 
     vistas = sum(1 for compra in historial if compra["estado"] == "usada")
 
-    return render_template('perfil.html', perfil=respuesta_perfil, historial=historial, vistas=vistas)
+    return render_template('perfil.html', perfil=perfil, historial=historial, vistas=vistas)
 
 @publico_bp.route("/perfil/compras/<int:compra_id>/reenviar_mail", methods=["POST"])
 def reenviar_mail(compra_id):

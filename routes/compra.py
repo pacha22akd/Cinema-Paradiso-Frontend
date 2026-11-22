@@ -330,7 +330,7 @@ def registrar_compra(funcion, resumen):
     if estado >= 400:
         return fallar_compra(compra_id, pago, estado)
 
-    if pago is None:  # el backend pudo contestar 204 sin cuerpo
+    if pago is None:  
         pago = {}
     return compra_id, pago.get("email_enviado", False), None
 
