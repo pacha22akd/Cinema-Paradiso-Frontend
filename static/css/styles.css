@@ -361,3 +361,16 @@ background-size: cover; background-position: center; background-repeat: no-repea
     margin-right: auto;}
 }
 
+/* ===== Tablets ===== */
+@media (max-width: 992px) {
+  .grilla-peliculas { grid-template-columns: repeat(3, 1fr); }
+  .layout-compra, .layout-perfil { grid-template-columns: 1fr; }
+  .layout-programa { grid-template-columns: 1fr; }
+  .programa-poster { order: -1; max-width: 260px; margin: 0 auto; }
+  .admin-layout { grid-template-columns: 1fr; }
+  .admin-menu { border-right: 0; border-bottom: 1px solid var(--borde); padding: 1rem 0; display: flex; flex-wrap: wrap; gap: .25rem; }
+  .admin-menu a { margin: 0; }
+  .admin-contenido { padding: 1.5rem 0; }
+  .grilla-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
