@@ -121,7 +121,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--rojo); bord
 
 /* ---------- Alertas e insignias ---------- */
 .alerta { padding: .75rem 1rem; border-radius: .5rem; margin-bottom: 1rem; border: 1px solid transparent; text-align: center;}
-.alerta-danger { background: #4a1d24; border-color: #842029; color: #ffb3bb; }
+.alerta-error { background: #4a1d24; border-color: #842029; color: #ffb3bb; }
 .alerta-warning { background: #4a3a14; border-color: #8a6d1d; color: #ffe08a; }
 .alerta-simple { background: #eee; color: #444; font-size: .875rem; margin-top: 1rem; margin-bottom: 0; }
 .insignia { display: inline-block; padding: .15rem .55rem; border-radius: 1rem; font-size: .75rem; font-weight: 600; background: #5b4a6e; color: #fff; }
