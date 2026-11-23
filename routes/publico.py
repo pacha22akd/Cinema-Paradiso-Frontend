@@ -98,7 +98,7 @@ def perfil():
         return redireccion
         
     respuesta_perfil, status_perfil = llamar_api("GET", "/usuarios/perfil")
-    respuesta_compras, status_compras = llamar_api("GET", "/compras", parametros={"per_page": 100})
+    respuesta_compras, status_compras = llamar_api("GET", "/compras", parametros={"cantidad_compras": 100})
 
     if status_perfil != 200 or status_compras != 200:
         flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
@@ -106,10 +106,11 @@ def perfil():
 
     perfil = respuesta_perfil['data']
     historial = respuesta_compras["data"]
+    total_compras = respuesta_compras["resumen"]["total"]
 
     vistas = sum(1 for compra in historial if compra["estado"] == "usada")
 
-    return render_template('perfil.html', perfil=perfil, historial=historial, vistas=vistas)
+    return render_template('perfil.html', perfil=perfil, historial=historial, vistas=vistas, total_compras=total_compras)
 
 @publico_bp.route("/perfil/compras/<int:compra_id>/reenviar_mail", methods=["POST"])
 def reenviar_mail(compra_id):
