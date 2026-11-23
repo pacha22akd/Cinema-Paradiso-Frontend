@@ -69,10 +69,6 @@ def login():
             session['rol'] = usuario['rol']
             session['usuario_email'] = usuario['email']
 
-            next_page = request.args.get('next')
-            if next_page:
-                return redirect(next_page)
-
             if session['rol'] == 'administrador':
                 return redirect(url_for('admin.dashboard')) 
             
