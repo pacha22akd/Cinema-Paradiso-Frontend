@@ -385,3 +385,58 @@ def escaner_qr():
         resultado=resultado,
         tipo_qr=tipo_qr
     )
+    
+
+@admin_bp.route("/funciones/<int:funcion_id>/editar", methods=["GET", "POST"])
+def editar_funcion(funcion_id):
+
+    if request.method == "POST":
+        try:
+            datos = {
+                "pelicula_id": int(request.form.get("pelicula_id", "")),
+                "sala_id": int(request.form.get("sala_id", "")),
+                "fecha_hora_inicio": request.form.get("fecha_hora_inicio", "").strip(),
+                "fecha_hora_fin": request.form.get("fecha_hora_fin", "").strip(),
+                "precio_base": float(request.form.get("precio_base", ""))
+            }
+        except (ValueError, TypeError):
+            return "La pelicula, la sala y el precio deben ser validos", 400
+
+        resultado, estado = llamar_api(
+            "PATCH",
+            f"/admin/funciones/{funcion_id}",
+            datos=datos
+        )
+
+        if estado != 200:
+            return responder_error_api(resultado, estado)
+
+        return redirect(url_for("admin.funciones"))
+
+
+    funcion, estado = llamar_api(
+        "GET",
+        f"/admin/funciones/{funcion_id}"
+    )
+    if estado != 200:
+        return responder_error_api(funcion, estado)
+
+    peliculas, estado = llamar_api("GET", "/admin/peliculas")
+    if estado != 200:
+        return responder_error_api(peliculas, estado)
+
+    salas, estado = llamar_api("GET", "/admin/salas")
+    if estado != 200:
+        return responder_error_api(salas, estado)
+
+    lista_funciones, estado = llamar_api("GET", "/admin/funciones")
+    if estado != 200:
+        return responder_error_api(lista_funciones, estado)
+
+    return render_template(
+        "admin/funciones.html",
+        peliculas=peliculas,
+        salas=salas,
+        funciones=lista_funciones,
+        funcion_editar=funcion
+    )

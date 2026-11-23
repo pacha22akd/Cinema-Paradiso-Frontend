@@ -8,8 +8,7 @@
       return;
     }
     boton.addEventListener("click", function () {
-      const abierto = menu.classList.toggle("abierto");
-      boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+      menu.classList.toggle("abierto");
     });
   }
 
