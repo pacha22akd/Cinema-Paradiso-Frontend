@@ -4,16 +4,24 @@
 <h1>Funciones</h1>
 
 <div class="panel panel-grande" style="margin-bottom:1.5rem">
-<h3>Crear función</h3>
-<form method="POST" action="{{ url_for('admin.guardar_funcion') }}" class="form-grilla">
+<h3>{{ "Editar función" if funcion_editar else "Crear función" }}</h3>
+
+<form method="POST" action="{{ url_for('admin.editar_funcion', funcion_id=funcion_editar.id) if funcion_editar else url_for('admin.guardar_funcion') }}"class="form-grilla">
 
     <div class="campo">
     <label for="pelicula_id">Película</label>
     <select id="pelicula_id" name="pelicula_id" required>
         <option value="">Seleccionar película</option>
         {% for pelicula in peliculas %}
-        <option value="{{ pelicula.id }}">{{ pelicula.titulo }}</option>
-        {% endfor %}
+        <option value="{{ pelicula.id }}"
+            {% if funcion_editar and funcion_editar.pelicula_id == pelicula.id %}
+                selected
+            {% endif %}>
+            {{ pelicula.titulo }}
+        </option>
+
+{% endfor %}
+
     </select>
     </div>
 
@@ -22,24 +30,46 @@
     <select id="sala_id" name="sala_id" required>
         <option value="">Seleccionar sala</option>
         {% for sala in salas %}
-        <option value="{{ sala.id }}">{{ sala.nombre }} - {{ sala.tipo }} - Local {{ sala.local_id }}</option>
+        <option value="{{ sala.id }}"
+            {% if funcion_editar and funcion_editar.sala_id == sala.id %}
+                selected
+            {% endif %}>
+            {{ sala.nombre }} - {{ sala.tipo }} - Local {{ sala.local_id }}
+        </option>
         {% endfor %}
     </select>
     </div>
 
+
     <div class="campo">
-    <label for="fecha_hora_inicio">Fecha y hora de inicio</label>
-    <input type="datetime-local" id="fecha_hora_inicio" name="fecha_hora_inicio" required>
+        <label for="fecha_hora_inicio">Fecha y hora de inicio</label>
+        <input type="datetime-local"
+            id="fecha_hora_inicio"
+            name="fecha_hora_inicio"
+            value="{{ funcion_editar.fecha_hora_inicio[:16] if funcion_editar else '' }}"
+            required>
     </div>
 
     <div class="campo">
-    <label for="fecha_hora_fin">Fecha y hora de fin</label>
-    <input type="datetime-local" id="fecha_hora_fin" name="fecha_hora_fin" required>
+        <label for="fecha_hora_fin">Fecha y hora de fin</label>
+        <input type="datetime-local"
+            id="fecha_hora_fin"
+            name="fecha_hora_fin"
+            value="{{ funcion_editar.fecha_hora_fin[:16] if funcion_editar else '' }}"
+            required>
     </div>
 
+
+
     <div class="campo">
-    <label for="precio_base">Precio</label>
-    <input type="number" id="precio_base" name="precio_base" min="0" step="0.01" required>
+        <label for="precio_base">Precio</label>
+        <input type="number"
+            id="precio_base"
+            name="precio_base"
+            min="0"
+            step="0.01"
+            value="{{ funcion_editar.precio_base if funcion_editar and funcion_editar.precio_base is not none else '' }}"
+            required>
     </div>
 
     <div class="campo" style="align-self:end">
@@ -59,9 +89,11 @@
         <th>Fin</th>
         <th>Precio</th>
         <th>Estado</th>
+        <th>Accion</th>
     </tr>
     </thead>
     <tbody>
+
     {% for f in funciones %}
     <tr>
         <td>{{ f.pelicula_id }}</td>
@@ -70,10 +102,17 @@
         <td>{{ f.fecha_hora_fin }}</td>
         <td>${{ f.precio_base }}</td>
         <td>{{ f.estado }}</td>
+        <td>
+            <a href="{{ url_for('admin.editar_funcion', funcion_id=f.id) }}"
+            class="boton boton-rojo">
+                Editar
+            </a>
+        </td>
     </tr>
     {% endfor %}
     </tbody>
-</table>
-</div>
+    </table>
+    </div>
 
-{% endblock %}
+    {% endblock %}
+
