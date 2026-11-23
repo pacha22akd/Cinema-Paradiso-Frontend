@@ -1,6 +1,11 @@
-{% set tarjeta = ['titular', 'numero', 'vencimiento', 'cvv'] %}
-{% for clave, valor in request.values.items(multi=True) %}
-  {% if clave not in tarjeta %}
-  <input type="hidden" name="{{ clave }}" value="{{ valor }}">
+{% for clave, valores in resumen.parametros.items() %}
+  {% set saltear = namespace(si=false) %}
+  {% for prefijo in (omitir or []) %}
+    {% if clave.startswith(prefijo) %}{% set saltear.si = true %}{% endif %}
+  {% endfor %}
+  {% if not saltear.si %}
+    {% for valor in valores %}
+      <input type="hidden" name="{{ clave }}" value="{{ valor }}">
+    {% endfor %}
   {% endif %}
 {% endfor %}

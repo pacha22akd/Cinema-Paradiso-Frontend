@@ -3,15 +3,16 @@
 {% block title %}Elegí horario{% endblock %}
 {% block paso %}
 <h2>Elegí tu horario</h2>
-{% for cine in cines %}
-  <h3 class="separado-arriba" style="margin-top:1.5rem">{{ cine.nombre }}</h3>
+{% for local in locales %}
+  <h3 class="separado-arriba" style="margin-top:1.5rem">{{ local.nombre }}
+    <small class="chico tenue">{{ local.direccion }}</small></h3>
   <div class="botones-fila">
-    {% for f in funciones %}
-      {% if f.cine.id == cine.id %}
-        <a class="boton boton-borde" href="{{ url_for('compra.entradas', funcion_id=f.id) }}">
-          {{ f.inicio.strftime('%d/%m %H:%M') }}<br><small>{{ f.sala }} · {{ f.formato }}</small></a>
-      {% endif %}
+    {% for f in local.funciones %}
+      <a class="boton boton-borde" href="{{ url_for('compra.entradas', pelicula_id=pelicula.id, funcion_id=f.funcion_id) }}">
+        {{ f.inicio.strftime('%d/%m %H:%M') }}<br><small>{{ f.sala_nombre }} · {{ f.sala_tipo }} · {{ f.precio_base|precio }}</small></a>
     {% endfor %}
   </div>
+{% else %}
+  <div class="panel"><p class="tenue" style="margin:0">Por ahora no hay funciones disponibles para esta película.</p></div>
 {% endfor %}
 {% endblock %}

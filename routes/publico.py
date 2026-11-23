@@ -1,33 +1,35 @@
-# Pantallas públicas: cartelera, detalle de película, login y perfil.
 import unicodedata
 from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
-
-from services import mock_data
 from services.auth import revisar_login
+from services.api import llamar_api
+from routes.compra import get_pelicula
 
 publico_bp = Blueprint("publico", __name__)
 
 @publico_bp.route("/")
 def cartelera():
-    peliculas = mock_data.get_peliculas()
+    peliculas, estado = llamar_api("GET", "/peliculas")
+    if estado != 200:
+        flash("No se pudo cargar la cartelera. Por favor, intentá de nuevo más tarde.", "error")
+        peliculas = []  
     return render_template("index.html", peliculas=peliculas)
 
 def sin_acentos(texto):
-    #Pasa a minúsculas y quita los acentos para que siempre coincida
     texto = unicodedata.normalize("NFD", texto.lower())
-    return "".join(letra for letra in texto if unicodedata.category(letra) != "Mn") #saca acentos y espacios 
+    return "".join(letra for letra in texto if unicodedata.category(letra) != "Mn")
 
 @publico_bp.route("/peliculas")
 def peliculas():
     busqueda = request.args.get("q", "").strip()
-    todas = mock_data.get_peliculas()
+    todas, estado = llamar_api("GET", "/peliculas")
+    
+    if estado != 200:
+        flash("No se pudieron cargar las películas.", "error")
+        todas = []
 
     if busqueda:
         buscado = sin_acentos(busqueda)
-        resultado = []
-        for peli in todas:
-            if buscado in sin_acentos(peli["titulo"]):
-                resultado.append(peli)
+        resultado = [peli for peli in todas if buscado in sin_acentos(peli["titulo"])]
     else:
         resultado = todas
 
@@ -35,78 +37,170 @@ def peliculas():
 
 @publico_bp.route("/pelicula/<int:pelicula_id>")
 def pelicula(pelicula_id):
-    peli = mock_data.get_pelicula(pelicula_id)
+    peli, estado = get_pelicula(pelicula_id)
+
+    if estado != 200:
+        flash("No se pudo cargar la película.", "error")
+        return redirect(url_for("publico.peliculas"))
+
     if peli is None:
-        abort(404)  # la película no existe
-    cines = mock_data.get_cines()
-    funciones = mock_data.get_funciones(pelicula_id)
-    return render_template("pelicula.html", pelicula=peli, cines=cines, funciones=funciones)
+        abort(404)
 
+    return render_template("pelicula.html", pelicula=peli)
 
-@publico_bp.route("/login", methods=["GET", "POST"])
+@publico_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        email = request.form.get("email", "")
-        password = request.form.get("password", "")
-        usuario = mock_data.autenticar(email, password)
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        respuesta, status_code = llamar_api(
+            metodo="POST", 
+            endpoint="/sesiones", 
+            datos={"email": email, "password": password}
+        )
 
-        if usuario is None:
-            flash("Correo o contraseña incorrectos.", "danger")
-            return redirect(url_for("publico.login"))
+        if status_code == 200:
+            data = respuesta['data']
+            usuario = data['usuario']
+            session['token'] = data['token']
+            session['usuario_nombre'] = usuario['nombre']
+            session['usuario_id'] = usuario['id']
+            session['rol'] = usuario['rol']
+            session['usuario_email'] = usuario['email']
 
-        session.clear()
-        session["usuario"] = usuario  # guardamos el usuario en la sesión
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
 
-        if usuario["rol"] == "admin":
-            return redirect(url_for("admin.dashboard"))
-        return redirect(url_for("publico.cartelera"))
+            if session['rol'] == 'administrador':
+                return redirect(url_for('admin.dashboard')) 
+            
+            return redirect(url_for('publico.cartelera'))
+            
+        else:
+            flash(respuesta, 'error')
 
-    # GET = el usuario recién entró a la página, mostramos el formulario
-    return render_template("login.html")
+    return render_template('login.html')
 
 
-@publico_bp.route("/logout", methods=["POST"])
+@publico_bp.route('/logout')
 def logout():
-    session.clear()  # borramos la sesión
-    return redirect(url_for("publico.cartelera"))
+    session.clear()
+    flash("Sesión cerrada correctamente", "exito")
+    return redirect(url_for('publico.cartelera'))
 
 
-@publico_bp.route("/perfil")
+@publico_bp.route('/perfil')
 def perfil():
-    respuesta = revisar_login()
-    if respuesta is not None:
-        return respuesta
+    redireccion = revisar_login()
+    if redireccion:
+        return redireccion
+        
+    respuesta_perfil, status_perfil = llamar_api("GET", "/usuarios/perfil")
+    respuesta_compras, status_compras = llamar_api("GET", "/compras", parametros={"per_page": 100})
 
-    historial = mock_data.get_historial()
-    vistas = 0
-    for compra in historial:
-        if compra["estado"] == "Utilizada":
-            vistas = vistas + 1
-    return render_template("perfil.html", usuario=session["usuario"], historial=historial, vistas=vistas)
+    if status_perfil != 200 or status_compras != 200:
+        flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
+        return redirect(url_for('publico.login'))
+
+    perfil = respuesta_perfil['data']
+    historial = respuesta_compras["data"]
+
+    vistas = sum(1 for compra in historial if compra["estado"] == "usada")
+
+    return render_template('perfil.html', perfil=perfil, historial=historial, vistas=vistas)
+
+@publico_bp.route("/perfil/compras/<int:compra_id>/reenviar_mail", methods=["POST"])
+def reenviar_mail(compra_id):
+    redireccion = revisar_login()
+    if redireccion:
+        return redireccion
+
+    respuesta, status = llamar_api("POST", f"/compras/{compra_id}/reenviar_mail")
+
+    if status == 200:
+        flash("Te reenviamos el mail con tus entradas.", "success")
+    else:
+        flash(respuesta, "danger")
+
+    return redirect(url_for("publico.perfil"))
+
+@publico_bp.route("/perfil/compras/<int:compra_id>/cancelar", methods=["POST"])
+def cancelar_compra_perfil(compra_id):
+    redireccion = revisar_login()
+    if redireccion:
+        return redireccion
+
+    respuesta, status = llamar_api("PATCH", f"/compras/{compra_id}/cancelar", datos={"motivo": "Cancelada por el usuario"})
+
+    if status == 200:
+        flash("Tu compra fue cancelada exitosamente.", "success")
+    else:
+        flash(respuesta, "danger")
+    return redirect(url_for("publico.perfil"))
 
 @publico_bp.route("/perfil/editar", methods=["GET", "POST"])
 def editar_perfil():
-    respuesta = revisar_login()
-    if respuesta is not None:
-        return respuesta
+    respuesta_auth = revisar_login()
+    if respuesta_auth is not None:
+        return respuesta_auth
 
     if request.method == "POST":
-        nombre = request.form.get("nombre", "").strip()
-        email = request.form.get("email", "").strip()
-        contraseña = request.form.get("contraseña", "").strip()
-        if not nombre or "@" not in email:
-            flash("Ingresá un nombre y un correo electrónico válido.", "danger")
-            return render_template("editar_perfil.html", usuario=session["usuario"])
+        datos = {
+            "nombre": request.form.get("nombre", ""),
+            "apellido": request.form.get("apellido", ""),
+            "telefono": request.form.get("telefono", ""),
+            "email": request.form.get("email", ""),
+        }
 
-        usuario = dict(session["usuario"])
-        usuario.update({"nombre": nombre, "email": email, "contraseña": contraseña})
-        session["usuario"] = usuario
-        flash("Tus datos se actualizaron correctamente.", "success")
-        return redirect(url_for("publico.perfil"))
+        password = request.form.get("password", "")
+        if password != "":
+            datos["password"] = password
+            
+        respuesta_api, status = llamar_api("PATCH", "/usuarios/perfil", datos=datos)
 
-    return render_template("editar_perfil.html", usuario=session["usuario"])
+        if status == 200:
+            session["usuario_nombre"] = respuesta_api["nombre"]
+            flash("Tus datos se actualizaron correctamente.", "success")
+            return redirect(url_for("publico.perfil"))
 
-@publico_bp.route("/registro")
+        flash(respuesta_api, "danger") 
+        return render_template("editar_perfil.html", usuario=datos)
+
+    # GET
+    respuesta_api, status = llamar_api("GET", "/usuarios/perfil")
+    if status != 200:
+        flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
+        return redirect(url_for("publico.login"))
+
+    return render_template("editar_perfil.html", usuario=respuesta_api["data"]["datos_personales"])
+
+@publico_bp.route('/registro', methods=['GET', 'POST'])
 def registro():
-    return render_template("registro.html")
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        apellido = request.form.get('apellido')
+        email = request.form.get('email')
+        telefono = request.form.get('telefono')
+        password = request.form.get('password')
+        confirmar_password = request.form.get('confirmar_password')
 
+        if password != confirmar_password:
+            flash("Las contraseñas no coinciden.", "error")
+            return redirect(url_for('publico.registro'))
+
+        datos_registro = {
+            "nombre": nombre, "apellido": apellido, "email": email,
+            "telefono": telefono, "password": password
+        }
+
+        respuesta, status = llamar_api(metodo="POST", endpoint="/usuarios", datos=datos_registro)
+
+        if status == 201:
+            flash("¡Registro exitoso! Ya podés iniciar sesión.", "exito")
+            return redirect(url_for('publico.login'))
+        else:
+            flash(respuesta, 'error')
+
+    return render_template('registro.html')

@@ -1,7 +1,6 @@
 (function () {
   "use strict";
 
-  //Menú de celular: el botón ☰ abre y cierra el menú
   function iniciarMenu() {
     const boton = document.getElementById("boton-menu");
     const menu = document.getElementById("menu-principal");
@@ -9,24 +8,10 @@
       return;
     }
     boton.addEventListener("click", function () {
-      const abierto = menu.classList.toggle("abierto");
-      boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+      menu.classList.toggle("abierto");
     });
   }
 
-  //El selector de cines (de la barra superior) se cierra al hacer click afuera
-  function iniciarDesplegables() {
-    document.addEventListener("click", function (evento) {
-      const abiertos = document.querySelectorAll(".desplegable[open]");
-      abiertos.forEach(function (desplegable) {
-        if (!desplegable.contains(evento.target)) {
-          desplegable.removeAttribute("open");
-        }
-      });
-    });
-  }
-
-  //Carruseles: las flechas ‹ › mueven el carrusel
   function iniciarCarruseles() {
     const cajas = document.querySelectorAll("[data-carrusel]");
     cajas.forEach(function (caja) {
@@ -43,7 +28,6 @@
     });
   }
 
-  //Login: botón para mostrar u ocultar la contraseña
   function iniciarMostrarPassword() {
     const botones = document.querySelectorAll("[data-mostrar-password]");
     botones.forEach(function (boton) {
@@ -56,7 +40,6 @@
     });
   }
 
-  //Butacas: no se pueden elegir más butacas que entradas, y se cuenta cuántas van
   function iniciarButacas() {
     const formulario = document.querySelector("[data-max-butacas]");
     if (!formulario) {
@@ -73,18 +56,14 @@
 
     function actualizar() {
       const elegidas = contarElegidas();
-      if (maximo > 0) {
-        contador.textContent = "Elegidas: " + elegidas + " de " + maximo;
-        continuar.disabled = elegidas !== maximo;
-      } else {
-        contador.textContent = "Elegidas: " + elegidas;
-      }
+      contador.textContent = "Elegidas: " + elegidas + " de " + maximo;
+      continuar.disabled = elegidas !== maximo;  
     }
 
     checkboxes.forEach(function (checkbox) {
       checkbox.addEventListener("change", function () {
-        if (maximo > 0 && contarElegidas() > maximo) {
-          checkbox.checked = false;  // se pasó del máximo: desmarcamos la última
+        if (contarElegidas() > maximo) {
+          checkbox.checked = false;  
         }
         actualizar();
       });
@@ -93,21 +72,20 @@
     actualizar();
   }
 
-  //Total en vivo: suma cantidad x precio mientras el usuario cambia los números
   function iniciarTotalEnVivo() {
     const formularios = document.querySelectorAll("[data-total]");
     formularios.forEach(function (formulario) {
       const salida = formulario.querySelector("[data-total-salida]");
-      const base = parseInt(formulario.dataset.total, 10) || 0;
+      const base = parseFloat(formulario.dataset.total) || 0;
       const campos = formulario.querySelectorAll("input[data-precio]");
 
       function calcular() {
         let total = base;
         campos.forEach(function (campo) {
           const cantidad = parseInt(campo.value, 10) || 0;
-          total = total + cantidad * parseInt(campo.dataset.precio, 10);
+          total = total + cantidad * parseFloat(campo.dataset.precio);
         });
-        salida.textContent = "$" + total;
+        salida.textContent = "$" + total.toLocaleString("es-AR");
       }
 
       campos.forEach(function (campo) {
@@ -117,26 +95,53 @@
     });
   }
 
-  //Formularios con pregunta de confirmación (por ejemplo, cancelar una entrada)
   function iniciarConfirmaciones() {
     const formularios = document.querySelectorAll("form[data-confirmar]");
     formularios.forEach(function (formulario) {
       formulario.addEventListener("submit", function (evento) {
         if (!window.confirm(formulario.dataset.confirmar)) {
-          evento.preventDefault();  // si dice que no, el formulario no se envía
+          evento.preventDefault();  
         }
       });
     });
   }
+  function iniciarEscanerQR() {
+    const readerDiv = document.getElementById("reader");
+    
+    if (!readerDiv) return; 
 
-  //Cuando la página termina de cargar, activamos todo
+    const html5QrCode = new Html5Qrcode("reader");
+    let escaneando = true;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        if (!escaneando) return; 
+        escaneando = false;
+
+        document.getElementById('qr_codigo_input').value = decodedText;
+        
+        document.getElementById('formQR').submit();
+    }
+
+    Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length) {
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: 250 },
+                onScanSuccess
+            );
+        }
+    }).catch(err => {
+        readerDiv.innerHTML = "<p class='chico texto-rojo'>No se pudo acceder a la cámara. Verificá los permisos del navegador.</p>";
+    });
+  }
+  
   document.addEventListener("DOMContentLoaded", function () {
     iniciarMenu();
-    iniciarDesplegables();
     iniciarCarruseles();
     iniciarMostrarPassword();
     iniciarButacas();
     iniciarTotalEnVivo();
     iniciarConfirmaciones();
+    iniciarEscanerQR(); 
   });
 })();

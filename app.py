@@ -1,16 +1,18 @@
-# Para correrlo:  python app.py   y abrir http://localhost:5001
 import os
 
+from dotenv import load_dotenv
 from flask import Flask, render_template
 
 from routes.publico import publico_bp
 from routes.compra import compra_bp
 from routes.admin import admin_bp
 
+load_dotenv()
+
 app = Flask(__name__)
 
-# Flask necesita una clave secreta para poder guardar la sesión del usuario (el login)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "clave-solo-para-desarrollo")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["API_URL"] = os.environ.get("API_URL")
 
 app.register_blueprint(publico_bp)
 app.register_blueprint(compra_bp, url_prefix="/comprar")

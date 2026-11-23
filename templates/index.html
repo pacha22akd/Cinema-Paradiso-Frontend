@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Cartelera{% endblock %}
 {% block content %}
-<h1 class="saludo">Bienvenid@ {{ session.usuario.nombre if session.usuario else '' }}</h1>
+<h1 class="saludo">Bienvenid@ {{ session.usuario_nombre if session.usuario_nombre else '' }}</h1>
 
 <section class="carrusel-caja" data-carrusel>
   <button type="button" class="carrusel-flecha izquierda" data-carrusel-anterior aria-label="Anterior">‹</button>

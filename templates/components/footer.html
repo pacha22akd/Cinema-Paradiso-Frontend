@@ -2,12 +2,16 @@
   <div class="contenedor pie-interior">
     <div>
       <h3>Cine_Paradiso en todas nuestras redes</h3>
-      <div class="redes"><span><a href="#">IG</a></span><span><a href="#">X</a></span><span><a href="#">YT</a></span></div>
+      <div class="redes"><span><a href="#"><img src="{{ url_for('static', filename='images/icono_ig.png') }}" class="icono-redes"></a></span>
+        <span><a href="#"><img src="{{ url_for('static', filename='images/icono_x.png') }}" class="icono-redes"></a></span>
+        <span><a href="#"><img src="{{ url_for('static', filename='images/icono_yt.png') }}" class="icono-redes"></a></span></div>
     </div>
     <div>
       <h3>Nuestros cines:</h3>
       <ul>
-        {% for n in (1, 2, 3) %}<li>Cine Paradiso {{ n }}</li>{% endfor %}
+        <li>Cine Paradiso Centro Av. Corrientes 1200</li>
+        <li>Cine Paradiso Norte Av. Cabildo 2200</li>
+        <li>Cine Paradiso Oeste Av. Rivadavia 6400</li>
       </ul>
     </div>
   </div>
