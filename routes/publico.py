@@ -94,7 +94,7 @@ def perfil():
         return redireccion
         
     respuesta_perfil, status_perfil = llamar_api("GET", "/usuarios/perfil")
-    respuesta_compras, status_compras = llamar_api("GET", "/compras", parametros={"cantidad_compras": 100})
+    respuesta_compras, status_compras = llamar_api("GET", "/compras", parametros={"cantidad_compras": 10})
 
     if status_perfil != 200 or status_compras != 200:
         flash("No se pudo cargar tu perfil. Iniciá sesión de nuevo.", "danger")
