@@ -113,7 +113,7 @@
     const html5QrCode = new Html5Qrcode("reader");
     let escaneando = true;
 
-    function onScanSuccess(decodedText, decodedResult) {
+    function onScanSuccess(decodedText) {
         if (!escaneando) return; 
         escaneando = false;
 
